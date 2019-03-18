@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../layui/css/layui.css">
+</head>
+<body>
+   <input type="hidden" id="id" name="id">
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+		<fieldset>
+			<div class="form-group">
+				<label class="col-md-2 control-label">顺序</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="顺序" type="text" name="sort" id="sort" maxlength="255">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">标题</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="标题" type="text" name="title" id="title" maxlength="255">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">链接地址</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="链接地址" type="text" name="linkUrl" id="linkUrl" maxlength="128">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">二级标题</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="二级标题" type="text" name="secondaryTitle" id="secondaryTitle" maxlength="255">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">内容信息</label>
+					<textarea class="layui-textarea" id="content" style="display: block">  
+					</textarea>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">新闻时间</label>
+				<div class="col-md-10">
+					<input class="form-control"  type="text" name="newsTime" id="newsTime" maxlength="255">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label class="col-md-2 control-label">图片</label>
+				<div class="col-md-10">
+					<textarea class="layui-textarea" id="demo" style="display: none">  
+					</textarea>
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label class="col-md-2 control-label">效果图片</label>
+				<div class="col-md-10">
+					<textarea class="layui-textarea" id="demos" style="display: none">  
+					</textarea>
+				</div>
+			</div>
+			
+
+			<div class="form-actions">
+				<div class="row" align="center">
+					<div class="col-md-12">
+					    <button class="btn btn-primary" onclick="location.href='t_column_contents.html'">返回</button>
+						<button class="btn btn-primary" type="submit" onclick="add(this, true)">
+							<i class="fa fa-save"></i> 保存
+						</button>
+					</div>
+				</div>
+			</div>
+
+		</fieldset>
+	</div>
+
+	<script src="../../js/constant.js"></script>
+	<script type="text/javascript" src="../../js/libs/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="../../js/jq.js"></script>
+	<script type="text/javascript" src="../../layui/layui.js"></script>
+	<script type="text/javascript" src="../../js/common.js"></script>
+	<script type="text/javascript">
+	
+	
+	$(function(){
+	   var id = getUrlParam("id");
+		$('#id').val(id);
+	 
+	});
+	
+	
+	layui.use(['layer','util', 'laydate'], function(){
+    var layer = layui.layer;
+    var util = layui.util;
+    var laydate = layui.laydate;
+    laydate.render({
+       elem: '#newsTime'
+    });
+	});
+	
+	    var imgUrl="";
+		var layedit, index;
+		var layedit2,index2;
+		layui.use(['layedit','upload'], function(){
+		  layedit = layui.layedit;
+		  layedit.set({
+              uploadImage: {
+                  url: domainName +"/api-f/files/cms/layui?fileSource=QINIUYUN&access_token="+localStorage.getItem("access_token"),
+                  type: 'post'
+              }
+            });
+			
+		   index =  layedit.build('demo', {
+                tool: ['image'],//设置需要的控件
+                height: 280 //设置高度
+            });
+		});
+	layui.use(['layedit','upload'], function(){
+		  layedit2 = layui.layedit;
+		  layedit2.set({
+              uploadImage: {
+                  url: domainName +"/api-f/files/cms/layui?fileSource=QINIUYUN&access_token="+localStorage.getItem("access_token"),
+                  type: 'post'
+              }
+            });
+			
+		 index2 =  layedit2.build('demos', {
+                tool: ['image'],//设置需要的控件
+                height: 280 //设置高度
+            });
+		});
+		function add(obj, send) {
+		    var id=$("#id").val();
+			var sort = $("#sort").val();
+			var linkUrl = $("#linkUrl").val();
+			var title=$("#title").val();
+			var secondaryTitle = $("#secondaryTitle").val();
+			var content = $("#content").val();
+			var newsTime=$("#newsTime").val();
+		    if(sort.trim() == ""){
+		       layer.msg("排序不能为空")
+			   return;
+		    }
+		
+	
+		    $(obj).attr("disabled",true);
+		    var formdata = $("#form").serializeObject();
+			formdata.columnId = id;
+		    formdata.sort = sort;
+		    formdata.linkUrl = linkUrl;
+			formdata.title = title;
+		    formdata.secondaryTitle = secondaryTitle;
+			formdata.content = content;
+		    formdata.newsTime = newsTime;
+			var re=/src="[^"]+/g;
+			var backeurl=layedit.getContent(index);
+			 var arr=backeurl.match(re),re_arr=[];
+			 if(arr!=null){
+			  for(var i=0,len=arr.length;i<len;i++){
+               re_arr.push(arr[i].substr(5));
+             };
+		    formdata.imgUrl =re_arr[0];
+			 }
+			
+			var backeurl2=layedit2.getContent(index2);
+			 var arr2=backeurl2.match(re),re_arr2=[];
+			 if(arr2!=null){
+			  for(var i=0,len=arr2.length;i<len;i++){
+               re_arr2.push(arr2[i].substr(5));
+              };
+		       formdata.effectImgUrl =re_arr2[0];
+			 }
+			
+			$.ajax({
+				type : 'post',
+				url : domainName + '/api-f/files/saveTColumnContent?send=' + send,
+				contentType: "application/json; charset=utf-8",  
+				data : JSON.stringify(formdata),
+				success : function(data) {
+				    var msg = "成功";
+				    if(send) {
+				        msg = "异步上传中，请在列表中查看结果";
+					}
+					layer.msg(msg, {shift: -1, time: 1000}, function(){
+						location.href = "t_column_contents.html?id="+$('#id').val();
+                    });
+				}
+			});
+            $(obj).attr("disabled",false);
+		}
+		
+	</script>
+</body>
+</html>

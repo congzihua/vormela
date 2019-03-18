@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/dataTables.bootstrap.min.css">
+<link rel="stylesheet" href="../../layui/css/layui.css" media="all" />
+<link rel="stylesheet" href="../../css/leaflet.css" media="all" />
+</head>
+<style>
+        .form-group {
+            width: 50%;
+            float:left;
+            height: 100px;
+        }
+        .form-groups {
+            width: 50%;
+            float:left;
+            height: 550px;
+			margin-top:20px;
+        }
+		#colorBar {
+		    width: 50%;
+            float:left;
+            height: 30px;
+			margin-top:20px;
+            position:absolute;
+            bottom:30px;
+        }
+		#textBar {
+		    width: 50%;
+            float:left;
+            height: 20px;
+			margin-top:20px;
+            position:absolute;
+            bottom:10px;
+        }
+		
+		#resultsMap {
+		   vertical-align: middle;
+            text-align: center;
+		    width: 50%;
+            float:left;
+            height: 350px;
+			margin-top:10px;
+            position:absolute;
+            bottom:200px;
+        }
+    </style>
+<body>
+
+ <!--  动态切换的模态框---氮磷钾-->
+	<div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div>
+                     <input type="hidden" id="inputtifColorLevelJson"/>
+					  <input type="hidden" id="maxLon"/>
+					   <input type="hidden" id="minLon"/>
+					   <input type="hidden" id="maxLat"/>
+					   <input type="hidden" id="minLat"/>
+					 <input type="hidden" id="longitLatInfos"/>
+					   <input type="hidden" id="tifPath"/>
+					   <input type="hidden" id="tifUrl"/>
+					   <input type="hidden" id="tifSize"/>
+					   <input type="hidden" id="rsyType"/>
+					     <input type="hidden" id="imgSize"/>
+					   <input type="hidden" id="imgUrl"/>
+					    <input type="hidden" id="index"/>
+						<input type="hidden" id="gridCountVos"/>
+					 <div align="left" class="first"> 
+                        <table style="width: 100%">
+                            <tr>
+                                <td>
+                            
+									  <div style="text-align:center" id="titles">
+									   </div>
+										<div class="form-group"  id="tabDetail">
+										
+										</div>
+										<div align="right" class="form-groups" >
+						                  
+											  
+											  
+										  <div  class="updat-img leaflet-container leaflet-touch leaflet-grab leaflet-touch-drag leaflet-touch-zoom" id="resultsMap" >
+					                         
+										  
+										  
+								
+									
+										  </div>
+											  
+											  
+											  
+											  
+											  
+											  
+											  
+											  
+										  <div id="colorBar" >
+										  
+										  </div>
+										  
+                                          <div  id="textBar"  >
+					                         
+										  </div>
+									
+                                        </div>
+                                </td> 
+                            </tr> 
+                        </table>
+                    </div>
+				
+					
+				
+            </div>
+        </div>
+    </div>
+<script src="../../js/constant.js"></script>
+<script type="text/javascript" src="../../js/libs/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../js/jq.js"></script>
+<script type="text/javascript" src="../../js/common.js"></script>
+<script type="text/javascript" src="../../layui/layui.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="../../js/my/permission.js"></script>
+<script type="text/javascript" src="../../js/leaflet/leaflet.js"></script>
+<script type="text/javascript" src="../../js/leaflet/calculateArea.js"></script>
+<script type="text/javascript" src="../../js/leaflet/goolelevel.js"></script>
+<body>
+<script type="text/javascript">
+
+
+			   //初始化上传表格
+var layer;
+
+
+ 
+
+
+//控制table展示
+ function showDiv(wrsType,number) {
+
+            layui.use(['layer','util', 'laydate'], function(){
+    layer = layui.layer;
+    var util = layui.util;
+    var laydate = layui.laydate;
+    laydate.render({
+       elem: '#dtime',
+	   type: 'datetime'
+    });
+
+});
+
+         // 订单详情遥感类型
+           $("#rsyType").val(wrsType);
+           $(".step").attr('style','display:none;');
+		   $("#"+wrsType+"").attr('style','display:block;');
+		    $.ajax({
+	         type: "POST",
+             url: domainName+"/api-remote/remote/getRemoteMarkByRemoteType",
+			 async:true,  
+			 data:{           
+    		 remoteType :wrsType
+             }, 
+             dataType: "json",
+	        success:function(data) {
+             var colorBar=new Array();
+             var  textStr="";
+			 var lengthss="";
+            if(data.code ==200 ){ 
+			   var  obj=data.data;
+			 $("#inputtifColorLevelJson").val(data.otherData.markJson);
+			  if(obj!=null && obj!=''){
+			    lengthss=Math.floor($("#colorBar").width()/obj.length);
+			   for(i=0;i<obj.length;i++){
+			    colorBar.push(obj[i].color);
+				var levels="";
+			    if(obj[i].level!=null && obj[i].level!=""){
+				 levels="<input type='button' value="+obj[i].level+" style='height:20px;float:left;border:none;background:"+obj[i].color+";width:"+lengthss+"px'/>";
+				}else{
+				 levels="<input type='button' value='' style='height:20px;float:left;border:none;background:"+obj[i].color+";width:"+lengthss+"px'/>";
+				}
+				textStr+=levels;
+			  }
+			   var totalLength=lengthss*obj.length;
+			   var str=colorBar.join(','); 
+			   $('#colorBar').attr("style","background:-webkit-linear-gradient(left,"+str+");width:"+totalLength+"px");
+			    $("#textBar").html(textStr);
+			 }
+			 
+            }else{   
+			  layer.msg('操作失败!', {icon: 5, time: 1000});
+            }    
+           }
+	
+	});
+		   
+   }
+   
+   
+   
+   
+   //获取显示的服务div，比如氮磷钾。ph等等以及对应的所有详细信息
+   $(function(){
+        var id = getUrlParam("id");
+		var areaId = getUrlParam("areaId");
+		var detailId = getUrlParam("detailId");
+	    var fileanme = getQueryString("fileanme");
+	    var wrsTypeName = getQueryString("wrsTypeName");
+	    var wrsType = getUrlParam("wrsType");
+			 var buttonTab="";
+			 var tabDetail="";
+             buttonTab+="<button   id='tabTitle'  class='btn btn-primary' onclick='showDiv("+wrsType+","+0+")'>"+wrsTypeName+"</button>";
+				tabDetail+='<div class="step" id="'+wrsType+'" style="display:none" ><form enctype="multipart/form-data" id="uploadTif"> <table style="margin:10px;">'+
+				                            '<tr>色彩等级的临界值:<input class="form-control"  id="colorValues'+0+'" /></tr>'+
+											'<tr>选择TIF文件：<input type="file"  onchange="upload_cover('+0+')"  class="form-control" data-query="tif_file" name="file"/></tr>'+
+										   '<tr>选择数据表文件：<input type="file" onchange="upload_data('+0+')"  class="form-control" name="filePng" /></tr>'+
+											 '四角经纬度：<tr></br>左上：<input  class="form-control"  id="done'+0+'"/></tr>'+
+											 '<tr>右上：<input class="form-control"  id="dsecond'+0+'" /></tr>'+
+										   ' <tr> 右下：<input class="form-control"  id="dthird'+0+'" /></tr>'+
+										   ' <tr>左下：<input  class="form-control"  id="dfourth'+0+'" /></tr>'+
+											'<tr>影像日期:<input class="form-control"  id="dtime" />'+
+											'</tr><tr>分辨率:<input class="form-control"  id="dfb'+0+'"/></tr>'+
+											'<tr>总体长势:<input class="form-control" id="dzs'+0+'" /></tr>'+
+											'<tr ><td style="text-align :center"> <input onclick="saveMap('+0+')" type="button" value="保存" />'+
+                                             ' </td></tr></table></form></div>';
+
+  
+			 $("#titles").html(buttonTab);//写入table
+			 $("#tabDetail").html(tabDetail); //写入tab对应详细
+               showDiv(wrsType,0); //默认显示第一个
+          initUpdateOrderMap(detailId); 
+   });
+   
+   //初始化添加用的地图
+       resultsMap = null;
+	   yaoGanImageLayer=null;
+	   hitMaker = null;
+   function initUpdateOrderMap(orderDetailId){
+		$.ajax({
+		type: "POST",
+	  	url: domainName+"/api-remote/remote/getRemoteOrderDetailByid",
+	  	data: {
+	  		orderDetailId:orderDetailId
+	 	},
+		success: function(r){
+			if(resultsMap==null){
+				resultsMap=L.map("resultsMap",{zoomControl:false,attributionControl:false,fadeAnimation: false,maxZoom:18,minZoom:0,attributionControl:false,zoomSnap:.5,zoomDelta:.5});
+				resultsMap.setView([36.6203045297114,116.575579985093],5);
+	 			var mapLayer_weiXing001  = L.tileLayer("http://mt3.google.cn/vt/lyrs=s@110&hl=zh-CN&gl=cn&src=app&s=Galileo&x={x}&y={y}&z={z}", {id: 'mapbox.streets',   attribution: ""});
+	 			var mapLayer_biaoZhu001  = L.tileLayer("http://mt1.google.cn/vt/imgtp=png32&lyrs=h@177000000&hl=zh-CN&gl=cn&src=app&s=Galileo&x={x}&y={y}&z={z}", {id: 'mapbox.streets',   attribution: ""});
+	 			var mapLayer_weiXing  = L.layerGroup([mapLayer_weiXing001, mapLayer_biaoZhu001]);
+	 			mapLayer_weiXing001.setZIndex(0);
+	 			mapLayer_biaoZhu001.setZIndex(0);
+	 			mapLayer_weiXing.addTo(resultsMap);	
+	 			//遥感图
+				 yaoGanImageLayer = new L.ImageOverlay("",[[0,0],[2,2]],{opacity: 1,pane: 'tilePane'});
+				yaoGanImageLayer.setOpacity(0.7)
+				yaoGanImageLayer.addTo(resultsMap);
+				
+	 			resultsMap['on']('click', function (e) {
+	 				if(window['yaoGanImageLayer']!=null&&window['yaoGanImageLayer']._url!=""){
+	 					if(window['getYaoGanValue']!=null){
+	 						getYaoGanValue(e);
+	 					}
+	 				}
+	 			})
+			}
+			if(r.code==200){
+				
+				//地块
+	    		var areaPolygon =  L.polygon([],{color:'blue', fillColor:'#f03', fillOpacity:'0',weight:2});
+	    		var ranges = r.data.areaRangesGcj;
+				var pathJson = JSON.parse(ranges);
+			 	areaPolygon.setLatLngs(pathJson);
+			 	resultsMap.addLayer(areaPolygon);
+				//地块中心点
+				var lon = 0;
+				var lat = 0;
+				for(var i in pathJson){
+					lon += pathJson[i][1];
+					lat += pathJson[i][0];
+					if(i==0){
+		   				firstLon = lon;
+		   				firstLat = lat;
+					}
+				}
+				lon = lon/pathJson.length;
+				lat = lat/pathJson.length;
+				var size = calculateArea(pathJson);
+				var tagerLevel = 10;
+				var length = gooleLevels.length;
+				for(var i=length-1;i>=0;i--){
+					var element = gooleLevels[i];
+					var resolution = element.resolution;//分辨率
+					/**
+					 * 屏幕上200*200个点的面积
+					 *
+					 */
+					if(120*120*resolution*resolution>(size)){
+						tagerLevel = element.level;
+						break;
+					}
+				}
+				resultsMap.setView([lat,lon], tagerLevel);
+			}
+			
+			
+		}
+	});
+   
+  }
+   
+   
+
+//上传TIF文件
+function upload_cover(i) {
+	var formData = new FormData($("#uploadTif")[0]);
+	var colorValues = $("#colorValues"+i+"").val();
+	if(colorValues == "" || colorValues == null || typeof(colorValues) == "undefined"){
+		layer.alert('请先填写对应个等级的临界值', {
+			icon: 5,
+			title: "提示"
+		});
+	}
+	formData.append("tifColorLevelJson",$("#inputtifColorLevelJson").val());
+	formData.append("colorValues", colorValues);
+	
+	$.ajax({
+            ////////
+			//url:domainName+"/api-remote/remote/uploadFile",
+			url:"https://saasmanager.sino-eco.com:448/readtif/remote/uploadFile.do",
+			type: 'post',
+            data: formData,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success:function (data) {
+                if(data.code==200){
+    				var longitLatInfos = data.data.longitLatInfos;
+					 var mycars = new Array();
+					 maycars=longitLatInfos.split(",");
+    				$("#done"+i+"").val(maycars[0]);
+    				$("#dsecond"+i+"").val(maycars[1]);
+    				$("#dthird"+i+"").val(maycars[2]);
+    				$("#dfourth"+i+"").val(maycars[3]);
+					//以下是公用
+					$("#maxLon").val(data.data.maxLon);
+					$("#minLon").val(data.data.minLon);
+					$("#maxLat").val(data.data.maxLat);
+					$("#minLat").val(data.data.minLat);
+					$("#longitLatInfos").val(data.data.longitLatInfos);
+					$("#tifPath").val(data.data.tifPath);
+					$("#tifUrl").val(data.data.tifUrl);
+					$("#tifSize").val(data.data.tifSize);
+					$("#imgSize").val(data.data.imgSize);
+					$("#imgUrl").val(data.data.imgUrl);
+					$("#gridCountVos").val(data.data.gridCountVos);
+					addYaoGanImageLayer(data.data.imgUrl,longitLatInfos)
+					layer.alert('上传成功', {
+			          icon: 6,
+			          title: "提示"
+		             });
+                }else{
+                	layer.alert(''+data.data.serverMsg+'', {
+			          icon: 5,
+			          title: "提示"
+		             });
+                }
+            }
+    })
+
+}   
+ //数据表文件
+
+function upload_data(i) {
+
+	var formData = new FormData($("#uploadTif")[0]);
+	$.ajax({
+            url:domainName+"/api-remote/remote/uploadPngFile",
+            type: 'post',
+            data: formData,
+            cache: false,
+			async: false,
+            processData: false,
+            contentType: false,
+            success:function (data) {
+                if(data.code==200){
+    				$("#datasrc").val(data.data.scr);
+					layer.alert('上传成功', {
+			          icon: 6,
+			          title: "提示"
+		             });
+                }else{
+                	layer.alert('上传失败', {
+			          icon: 5,
+			          title: "提示"
+		             });
+                }
+            }
+    })
+
+}   
+   
+   
+   
+   
+ function addYaoGanImageLayer(img_url,longit_lat_infos){
+	var latLons = longit_lat_infos.split(",");
+	var yaoGanBounds = L.latLngBounds(L.latLng(latLons[0],latLons[1]), L.latLng(latLons[2],latLons[3]))
+	yaoGanImageLayer.setBounds(yaoGanBounds);
+	yaoGanImageLayer.setUrl(img_url+"?v="+new Date());
+}
+
+
+
+ function saveMap(i){
+ 	 var detailId = getUrlParam("detailId");
+     var workId = getUrlParam("workId");
+     var orderId = getUrlParam("id");
+ $.ajax({
+           url:domainName+"/api-remote/remote/remoteSave",
+           type: 'post',
+		   dataType:"json",
+           data: {
+		   orderDetailId:detailId,
+		   workOrderId:workId,
+		   orderId:orderId,
+		   maxLon:$("#maxLon").val(),                //Double   必填 (最大经度)
+           minLon:$("#minLon").val(),                 //Double   必填 (最小经度)
+           maxLat:$("#maxLat").val(),             //Double   必填 (最大纬度)
+           minLat:$("#minLat").val(),               //Double   必填 (最小纬度)
+           colorValues:$("#colorValues"+i+"").val(),           //String   必填 (色标vavlues)
+          rsType:$("#rsyType").val(),             //Integer  必填 (订单详情遥感类型)
+          longitLatInfos:  $("#longitLatInfos").val(),          //String   必填 (四角经纬度)
+          tifPath:$("#tifPath").val() ,          //String   必填 (tif路径)
+          tifUrl:$("#tifUrl").val() ,            //String   必填 (tifUrl)
+          tifSize:$("#tifSize").val(),                //Integer  必填 (tif大小kb)
+          reportFile:"",         //String   必填 (图片报告url)
+          rsDate:$("#dtime").val(),          //String   必填 (遥感日期) 格式2018-10-05 00:00:00
+          pixelSize:$("#dfb"+i+"").val(),               //String   必填 (遥感图像分辨率)
+          avgValue: $("#dzs"+i+"").val() ,         //String   必填 (总体长势)          //String   必填 (订单编号)
+          imgSize:$("#imgSize").val(),       //Integer 必填 (图片大小kb)
+          imgUrl:$("#imgUrl").val(),        //String 必填 (图片url)
+		  gridCountVos:$("#gridCountVos").val(),//tif统计
+          colorMark:$("#inputtifColorLevelJson").val()      //String 必填 (色标) 这个色标不包含values
+			},
+         success:function (data) {
+		    if(data.code==200){
+			layer.alert('保存成功', {
+			          icon: 6,
+			          title: "提示"
+		             });
+		  var index=parent.layer.getFrameIndex(window.name);//获取当前弹出层的层级
+            window.parent.location.reload();//刷新父页面
+            parent.layer.close(index);//关闭弹出层 
+			}else{
+			layer.alert('保存失败', {
+			          icon: 5,
+			          title: "提示"
+		             });
+                return false;
+		
+			}
+               
+		 }, 
+		 error:function (textStatus) {//请求失败后调用的函数
+               layer.alert('保存失败', {
+			          icon: 5,
+			          title: "提示"
+		             });
+                return false;
+            }
+    })
+ 
+ 
+ 
+ }
+   
+
+</script>
+</html>

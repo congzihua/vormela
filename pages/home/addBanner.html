@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../layui/css/layui.css">
+</head>
+<body>
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+		<fieldset>
+			<div class="form-group">
+				<label class="col-md-2 control-label">顺序</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="顺序" type="text" name="sort" id="sort" maxlength="255">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">链接地址</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="链接地址" type="text" name="linkUrl" id="linkUrl" maxlength="128">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">按钮链接</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="按钮链接" type="text" name="buttonLinkUrl" id="buttonLinkUrl" maxlength="128">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">状态</label>
+				<div class="col-md-10">
+					               <select class="input-sm" id="status">
+                                		<option value="0">待发布</option>
+                                		<option value="1">已发布</option>
+										<option value="2">已暂停</option>
+                                	</select>
+				</div>
+			</div>
+
+
+			<div class="form-group">
+				<label class="col-md-2 control-label">内容</label>
+				<div class="col-md-10">
+					<textarea class="layui-textarea" id="demo" style="display: none">  
+					</textarea>
+				</div>
+			</div>
+
+			<div class="form-actions">
+				<div class="row" align="center">
+					<div class="col-md-12">
+					    <button class="btn btn-primary" onclick="location.href='t_banner.html'">返回</button>
+						<button class="btn btn-primary" type="submit" onclick="add(this, true)">
+							<i class="fa fa-save"></i> 保存
+						</button>
+					</div>
+				</div>
+			</div>
+
+		</fieldset>
+	</div>
+
+	<script src="../../js/constant.js"></script>
+	<script type="text/javascript" src="../../js/libs/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="../../js/jq.js"></script>
+	<script type="text/javascript" src="../../layui/layui.js"></script>
+	<script type="text/javascript" src="../../js/common.js"></script>
+	<script type="text/javascript">
+	    var imgUrl="";
+		var layedit, index;
+		layui.use(['layedit','upload'], function(){
+		  layedit = layui.layedit;
+		  layedit.set({
+              uploadImage: {
+                  url: domainName+"/api-f/files/cms/layui?fileSource=QINIUYUN&access_token="+localStorage.getItem("access_token"),
+                  type: 'post'
+              }
+            });
+			
+		  index =  layedit.build('demo', {
+                tool: ['image'],//设置需要的控件
+                height: 280 //设置高度
+            });
+		});
+	
+		function add(obj, send) {
+			var sort = $("#sort").val();
+			var linkUrl = $("#linkUrl").val();
+            var buttonLinkUrl=$("#buttonLinkUrl").val();
+			var status=$("#status option:selected").val();
+		    if(sort.trim() == ""){
+		       layer.msg("排序不能为空")
+			   return;
+		    }
+		    
+		    $(obj).attr("disabled",true);
+		    
+		    var formdata = $("#form").serializeObject();
+		    formdata.sort = sort;
+		    formdata.linkUrl = linkUrl;
+			formdata.buttonLinkUrl = buttonLinkUrl;
+		    formdata.status = status;
+			var re=/src="[^"]+/g;
+			var backeurl=layedit.getContent(index);
+			 var arr=backeurl.match(re),re_arr=[];
+			if(backeurl!=""){
+			 for(var i=0,len=arr.length;i<len;i++){
+               re_arr.push(arr[i].substr(5));
+             };
+		    formdata.imgUrl =re_arr[0];
+			}
+			
+			
+			$.ajax({
+				type : 'post',
+				url : domainName + '/api-f/files/saveBanner?send=' + send,
+				contentType: "application/json; charset=utf-8",  
+				data : JSON.stringify(formdata),
+				success : function(data) {
+				    var msg = "成功";
+				    if(send) {
+				        msg = "异步上传中，请在列表中查看结果";
+					}
+					layer.msg(msg, {shift: -1, time: 1000}, function(){
+						location.href = "t_banner.html";
+                    });
+				}
+			});
+            $(obj).attr("disabled",false);
+		}
+		
+	</script>
+</body>
+</html>

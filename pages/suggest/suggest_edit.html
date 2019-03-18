@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Insert title here</title>
+  <link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" media="screen" href="../../css/dataTables.bootstrap.min.css">
+  <link rel="stylesheet" href="../../layui/css/layui.css" media="all" />
+  <link rel="stylesheet" href="../../css/global.css"/>
+</head>
+<body>
+<div class="container">
+  <form class="edit-form form-horizontal">
+    <!-- from-group -->
+    <div class="form-group">
+      <label class="col-sm-2 control-label">区/县:</label>
+      <div class="col-sm-10">
+        <input class="form-control" name="analytic" placeholder="区/县" disabled="disabled"/>
+      </div>
+    </div>
+    <!-- // from-group -->
+    <!-- from-group -->
+    <div class="form-group">
+      <label class="col-sm-2 control-label">品种名称:</label>
+      <div class="col-sm-10">
+        <input class="form-control" name="analytic" placeholder="品种名称" disabled="disabled"/>
+      </div>
+    </div>
+    <!-- // from-group -->
+    <!-- from-group -->
+    <div class="form-group">
+      <label class="col-sm-2 control-label">生育期:</label>
+      <div class="col-sm-10">
+        <input class="form-control" name="analytic" placeholder="生育期" disabled="disabled"/>
+      </div>
+    </div>
+    <!-- // from-group -->
+    <!-- from-group -->
+    <div class="form-group">
+      <label class="col-sm-2 control-label">标题:</label>
+      <div class="col-sm-10">
+        <input class="form-control" name="analytic" placeholder="标题" disabled="disabled"/>
+      </div>
+    </div>
+    <!-- // from-group -->
+    <!-- from-group -->
+    <div class="form-group">
+      <label class="col-sm-2 control-label">等级:</label>
+      <div class="col-sm-10">
+        <select class="form-control" name="level">
+          <option value="0">默认</option>
+          <option value="5">轻度</option>
+          <option value="10">中度</option>
+          <option value="15">严重</option>
+        </select>
+      </div>
+    </div>
+    <!-- // from-group -->
+    <!-- from-group -->
+    <div class="form-group">
+      <label class="col-sm-2 control-label">描述:</label>
+      <div class="col-sm-10">
+        <textarea class="form-control" rows="3" name="description"></textarea>
+      </div>
+    </div>
+    <!-- // from-group -->
+    <!-- from-group -->
+    <div class="form-group">
+      <label class="col-sm-2 control-label">解析:</label>
+      <div class="col-sm-10">
+        <textarea class="form-control" rows="3" name="analytic"></textarea>
+      </div>
+    </div>
+    <!-- // from-group -->
+    <!-- from-group -->
+    <div class="form-group">
+      <label class="col-sm-2 control-label">指导/防治方法:</label>
+      <div class="col-sm-10">
+        <textarea class="form-control" rows="3" name="solution"></textarea>
+      </div>
+    </div>
+    <!-- // from-group -->
+    <!-- from-group -->
+    <div class="form-group">
+      <label class="col-sm-2 control-label">正常描述:</label>
+      <div class="col-sm-10">
+        <textarea class="form-control" rows="3" name="nomalDesc"></textarea>
+      </div>
+    </div>
+    <!-- // from-group -->
+    <!-- from-group -->
+    <div class="form-group">
+      <div class="col-sm-6"><a href="javascript:;" class="btn btn-primary center-block btn-save">保存</a></div>
+      <div class="col-sm-6"><a href="javascript:;" class="btn btn-default center-block btn-return">返回</a></div>
+    </div>
+    <!-- // from-group -->
+  </form>
+</div>
+</body>
+
+
+<script src="../../js/constant.js"></script>
+<script type="text/javascript" src="../../js/libs/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../js/jq.js"></script>
+<script type="text/javascript" src="../../layui/layui.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="../../js/my/permission.js"></script>
+<script type="text/javascript" src="../../js/common.js"></script>
+<script type="text/javascript">
+
+  var pers = checkPermission();
+
+
+  layui.use(["layer"], function(){
+    // 点击保存
+    $(".btn-save").click(function(){
+      $.ajax({
+        url: domainName + "/api-ag/suggest/updateSuggestById",
+        data: $(".edit-form").serialize(),
+        success: function(response){
+          if(response.code==200){
+            layer.msg("保存成功");
+            parent.layui.table.reload("suggestList",{ page: { curr: 1 }});
+            layer.closeAll();
+          }else{
+            layer.msg(response.msg);
+          }
+        }
+      });
+    });
+    // 点击返回
+    $(".btn-return").click(function(){
+      layer.closeAll();
+    });
+  });
+</script>
+</html>

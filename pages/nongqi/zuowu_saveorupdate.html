@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../layui/css/layui.css">
+</head>
+<body>
+    <input type="hidden" id="id" name="id">
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+		<fieldset>
+			<div class="form-group">
+				<label class="col-md-2 control-label">作物名称</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="作物名称" type="text" name="cropsName" id="cropsName" maxlength="255">
+				</div>
+			</div>
+		  <div class="form-group">
+				<label class="col-md-2 control-label">农作物种类</label>
+				<div class="col-md-10" id="corpKind">
+					
+				</div>
+			</div>
+			<div class="form-actions">
+				<div class="row" align="center">
+					<div class="col-md-12">
+					    <button class="btn btn-primary" onclick="location.href='zuowu_catogory_list.html'">返回</button>
+						<button class="btn btn-primary" type="submit" onclick="saveorupdate(this, true)">
+							<i class="fa fa-save"></i> 保存
+						</button>
+					</div>
+				</div>
+			</div>
+
+		</fieldset>
+	</div>
+
+	<script src="../../js/constant.js"></script>
+	<script type="text/javascript" src="../../js/libs/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="../../js/jq.js"></script>
+	<script type="text/javascript" src="../../layui/layui.js"></script>
+	<script type="text/javascript" src="../../js/common.js"></script>
+	<script type="text/javascript">
+
+	var layer;
+	layui.use(['layer','util', 'laydate'], function(){
+     layer= layui.layer;
+    var util = layui.util;
+	});
+	
+	
+
+           $(function(){
+		        $.ajax({
+                     type: "GET", //请求的方式获得作物分类
+                     url: domainName + '/api-ag/tcropseed/list?start=0&length=40', 
+                     dataType: "json", //json格式，后台返回的数据为json格式的。
+                     success: function(result){
+                        var dataObj = result.data; //返回的result为json格式的数据
+                         con = "<select id='parentId'  class='input-sm'>";
+                         $.each(dataObj, function(index, item){
+                             con += "<option value="+item.id+">"+item.cropName+"</option>";
+							});
+							 con+="</select>";
+                         $("#corpKind").html(con); //把内容入到这个div中即完成
+						     initData();
+                    }    
+                })
+           
+            });
+		 //初始化加载
+        function initData(){
+            var id = getUrlParam("id");
+            if(id != ""){
+                $.ajax({
+                    type : 'get',
+                    url : domainName + '/api-ag/crop/selectById?id=' +id,
+                    async : false,
+                    success : function(data) {
+                        $("#id").val(data.data.id);
+                        $("#cropsName").val(data.data.cropsName);
+						 $("#parentId").find("option[value="+data.data.parentId+"]").attr("selected","selected");
+                    }
+                });
+            }
+        }
+		
+	function saveorupdate(obj) {
+	       var msg="";
+	       var url="";
+	       var id = getUrlParam("id");
+	       if(id != ""){//走修改
+		     url=domainName + '/api-ag/crop/updateCorp';
+			 msg="修改成功";
+			 errormsg="修改失败";
+		   }else{//保存
+		    url=domainName + '/api-ag/crop/saveCrop';
+			  msg="保存成功";
+			 errormsg="保存失败";
+		   }
+			$.ajax({
+				type : 'post',
+				url : url,
+				data :{
+				 id:id,
+				 cropName:$("#cropsName").val(),
+                 parentId:$("#parentId option:selected").val()
+				},
+				success : function(data) {
+				   if(data.code==200){//成功
+				  layer.alert(msg, {
+			          icon: 6,
+			          title: "提示"
+		             });
+	             location.href = "zuowu_catogory_list.html"; 
+				   }else{//失败
+				   layer.alert(errormsg, {
+			          icon: 5,
+			          title: "提示"
+		             });
+					 return false;
+				   }
+				}
+			});
+		}
+		
+	</script>
+</body>
+</html>

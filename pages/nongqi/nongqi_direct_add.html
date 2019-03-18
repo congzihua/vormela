@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>农气指导添加</title>
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/dataTables.bootstrap.min.css">
+<link rel="stylesheet" href="../../layui/css/layui.css" media="all" />
+</head>
+<body>
+
+<div id="addForm">
+		<form id="saveForm" class="form-horizontal">
+			<div class="row">
+					<div class="col-sm-4">
+						<div class="form-group">
+					    <label for="" class="col-sm-4 control-label">区/县:</label>
+					    <div class="col-sm-8">
+					      <select class="form-control" name="areaId" id="areaId" onchange="searcSeeds();">					      	
+					      </select>
+					    </div>
+				    </div>
+				  </div>
+				  <div class="col-sm-4">
+				  	<div class="form-group">
+					    <label for="description" class="col-sm-4 control-label">品种名称:</label>
+					    <div class="col-sm-8">
+					      <select class="form-control" name="seedId" id="seedId" onchange="searcAllShengyuqiList();">
+					      	<option value="">请选择</option>
+					      </select>
+					    </div>
+				    </div>
+				 </div>
+				 <div class="col-sm-4">
+				 	<div class="form-group">
+					    <label for="" class="col-sm-4 control-label">生育期:</label>
+					    <div class="col-sm-8">
+					      <select class="form-control" name="cropPeriodId" id="cropPeriodId">
+					      	<option value="">请选择</option>
+					      </select>
+					    </div>
+				    </div>
+				 </div>
+			</div>
+			<div class="row">
+				<div class="col-sm-4">
+					<div class="form-group">
+					    <label for="" class="col-sm-4 control-label">等级:</label>
+					    <div class="col-sm-8">
+					    	<select class="form-control" name="level" id="level">
+					    		<option value="0">默认</option>
+					    		<option value="5">轻度</option>
+					    		<option value="10">中度</option>
+					    		<option value="15">严重</option>
+					    	</select>
+					    </div>
+					</div>
+				</div>
+				<div class="col-sm-4">
+					<div class="form-group">
+					    <label for="" class="col-sm-4 control-label">图标:</label>
+					    <div class="col-sm-8">
+					      <select class="form-control" name="warnIcon" id="warnIcon">
+					    		<option value="1">高温</option>
+					    		<option value="2">低温</option>
+					    		<option value="3">大风</option>
+					    		<option value="4">强降雨</option>
+					    		<option value="5">雪灾</option>
+					    		<option value="6">干旱</option>
+					    		<option value="7">涝灾</option>
+					    		<option value="8">雹灾</option>
+					    		<option value="9">倒伏</option>
+					    		<option value="10">寒露风</option>
+					    		<option value="11">连阴雨</option>
+					    		<option value="12">阴雨寡照</option>
+					    	</select>
+					    </div>
+					</div>
+				</div>
+			</div>
+		  	<div class="row">
+		  		<div class="col-sm-8">
+				  <div class="form-group">
+				    <label for="description" class="col-sm-2 control-label">农气指导名称:</label>
+				    <div class="col-sm-8">
+				      <textarea class="form-control" rows="2" name="name" id="name"></textarea>
+				    </div>
+				  </div>
+				</div>
+		  	</div>
+		  	<div class="row">
+		  		<div class="col-sm-8">
+				  <div class="form-group">
+				    <label for="description" class="col-sm-2 control-label">实况描述:</label>
+				    <div class="col-sm-8">
+				      <textarea class="form-control" name="liveDescription" id="liveDescription" rows="2"></textarea>
+				    </div>
+				  </div>
+				 </div>
+		  	</div>
+		  	<div class="row">
+		  		<div class="col-sm-8">
+				  <div class="form-group">
+				    <label for="description" class="col-sm-2 control-label">解析:</label>
+				    <div class="col-sm-8">
+				      <textarea class="form-control" name="analytic" id="analytic" rows="2"></textarea>
+				    </div>
+				  </div>
+			    </div>
+		  	</div>
+		  	<div class="row">
+		  		<div class="col-sm-8">
+				  <div class="form-group">
+				    <label for="description" class="col-sm-2 control-label">农气指导:</label>
+				    <div class="col-sm-8">
+				      <textarea class="form-control" rows="2"  name="guidance" id="guidance"></textarea>
+				    </div>
+				  </div>
+			    </div>
+		  	</div>
+		  	<div class="row">
+		  		<div class="col-sm-8">
+				  <div class="form-group">
+				    <label for="description" class="col-sm-2 control-label">正常描述:</label>
+				    <div class="col-sm-8">
+				      <textarea class="form-control" rows="2"  name="nomalDesc" id="nomalDesc"></textarea>
+				    </div>
+				  </div>
+			    </div>
+		  	</div>
+		  	<div class="row">
+				<div class="col-sm-6">
+					<div class="form-group">
+					    <label for="" class="col-sm-4 control-label">匹配显示位置:</label>
+					    <div class="col-sm-8">
+					      	 <select class="form-control" name="matchingPosition" id="matchingPosition">
+					    		<option value="1">农事建议页面</option>
+					    		<option value="2">其他项页</option>
+					    		<option value="0">不显示</option>
+					    	</select>
+					    </div>
+					</div>
+				</div>
+				<div class="col-sm-6">
+					<div class="form-group">
+					    <label for="" class="col-sm-4 control-label">不匹配显示位置:</label>
+					    <div class="col-sm-8">
+					      	<select class="form-control" name="noMatchingPosition" id="noMatchingPosition">
+					    		<option value="1">农事建议页面</option>
+					    		<option value="2">其他项页</option>
+					    		<option value="0">不显示</option>
+					    	</select>
+					    </div>
+					</div>
+				</div>
+			</div>
+		  	
+		  	<div class="index-set">
+		  		<div class="row title">
+		  			<div class="col-sm-12">
+		  				<h3 class="pull-left">影响因素设置</h3>
+		  				<a id="add" onclick="blankRowInfo();" class="btn btn-primary pull-right" href="javascript:;"><i class="fa fa-plus"></i>添加</a>
+		  			</div>
+		  		</div>
+		  		<div id="quotaRows">
+			  		<div class="row" id="rowIds0" name="rowIds">
+			  			<div class="col-sm-4">
+			  				<div class="form-group">
+							    <label for="" class="col-sm-4 control-label">影响要素:</label>
+							    <div class="col-sm-8">
+							      <select id="elementId" class="form-control" name="elementId" attr="elementId">
+							      </select>
+							    </div>
+						    </div>
+			  			</div>
+			  			<div class="col-sm-3">
+			  				<div class="form-group">
+							    <label for="" class="col-sm-4 control-label">最低值:</label>
+							    <div class="col-sm-8">
+							      <input type="number" class="form-control" name="minVal" id="minVal" attr="minVal">
+							    </div>
+						    </div>
+			  			</div>
+			  			<div class="col-sm-3">
+			  				<div class="form-group">
+							    <label for="" class="col-sm-4 control-label">最高值:</label>
+							    <div class="col-sm-8">
+							      <input type="number" class="form-control" id="maxVal" name="maxVal" attr="maxVal"/>
+								</div>
+						    </div>
+			  			</div>
+			  			<input type="button" class="del-index" value="删除" onclick="deleteRow('rowIds0');"/>
+			  		</div>
+		  		</div>
+		  	</div>
+		</form>
+
+		 <div class="form-actions">
+				<div class="row" align="center">
+					<div class="col-md-12">
+					    <button class="btn btn-primary" onclick="location.href='nongqi_direct_list.html'">返回</button>
+						<button class="btn btn-primary" type="submit" onclick="saveSQ(this, true)">
+							<i class="fa fa-save"></i> 保存
+						</button>
+					</div>
+				</div>
+			</div>
+	</div>
+</body>
+
+<script src="../../js/constant.js"></script>
+<script type="text/javascript" src="../../js/libs/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../js/jq.js"></script>
+<script type="text/javascript" src="../../layui/layui.js"></script>
+<script type="text/javascript" src="../../js/common.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="../../js/my/permission.js"></script>
+
+<script type="text/javascript">
+
+
+
+     
+
+
+
+
+ var layer;
+
+layui.use(['layer','util', 'laydate'], function(){
+       layer= layui.layer;
+	});
+
+
+         var elementSize = 1;//指标个数，删除时使用
+         var elementIdOptions = '';
+		 $(function(){
+		  
+		 $.ajax({
+                     type: "GET", //获得所有区县
+                     url: domainName+'/api-ag/base/getSeedCountys', 
+                     dataType: "json", //json格式，后台返回的数据为json格式的。
+                     success: function(response){
+                       var option = '<option value="0">请选择</option>';//区/县
+		               $.each(response.data,function(i,obj){
+			            option += '<option value="'+obj.station_id+'">'+obj.area_name+'</option>'
+		              })
+		               $('[name="areaId"]').html(option);
+                    }    
+                })
+
+		    $.ajax({
+                     type: "GET", //获得所有影响要素
+                     url: domainName+'/api-ag/quota/listElement', 
+                     dataType: "json", //json格式，后台返回的数据为json格式的。
+                     success: function(response){
+		               $.each(response.data,function(i,obj){
+			           elementIdOptions += '<option value="'+obj.id+'">'+obj.name+'</option>';
+		                 });
+		           $('[name="elementId"]').html(elementIdOptions);
+
+                    }    
+                })
+				
+          });
+
+//添加条目
+     var addIndex = 1;
+    
+	function blankRowInfo (rowId,index) {
+		
+		var str ='<div class="row" id="rowIds'+addIndex+'" name="rowIds"><div class="col-sm-4"><div class="form-group"><label name="yxQuota" for="" class="col-sm-4 control-label">影响要素:</label><div class="col-sm-8">';
+		str +='<select id="elementId'+addIndex+'" class="form-control" name="elementId" attr="elementId">';
+		str += elementIdOptions;
+		str += '</select></div></div></div><div class="col-sm-3"><div class="form-group"><label for="" class="col-sm-4 control-label">最低值:</label>';
+		str += '<div class="col-sm-8"><input type="number" class="form-control" attr="minVal" name="minVal" id="minVal'+addIndex+'">';
+		str += '</div></div></div>';
+		str += '<div class="col-sm-3"><div class="form-group"><label for="" class="col-sm-4 control-label">最高值:</label><div class="col-sm-8">';
+		str += '<input type="number" class="form-control" id="maxVal'+addIndex+'" name="maxVal" attr="maxVal"></div></div></div>';
+		str += '<input type="button" class="del-index" value="删除" onclick="deleteRow(\'rowIds'+addIndex+'\');"/></div>';
+		addIndex++;
+		$("#quotaRows").append(str);
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	     //根据区县查找种子
+	  function searcSeeds(){
+		var select = $('#seedId');
+		var sid = $('[name="areaId"] option:selected').val();
+		select.html('<option value="0">请选择作物</option>');
+		if(sid==0){
+			select.html('<option value="0">请选择作物</option>');
+		}else{
+			$.get(domainName+'/api-ag/tcropseed/getCropInfoByStationId?staionId='+sid,function(response){
+				var option = '<option value="0">请选择作物</option>';
+				$.each(response.data,function(i,obj){
+					option += '<option value="'+obj.id+'">'+obj.cropName+'</option>';
+				})
+				select.html(option);
+			})
+		}
+	  }
+
+    //根据种子获得所有的生育期
+	  function searcAllShengyuqiList(){
+		var select = $('#cropPeriodId');
+		var sid = $('[name="seedId"] option:selected').val();
+		select.html('<option value="0">请选择生育期</option>');
+		if(sid==0){
+			select.html('<option value="0">请选择生育期</option>');
+		}else{
+			$.get(domainName+'/api-ag/growth/getTseedPeriod?id='+sid,function(response){
+				var option = '<option value="0">请选择生育期</option>';
+				$.each(response.data,function(i,obj){
+					option += '<option value="'+obj.id+'">'+obj.periodName+'</option>';
+				})
+				select.html(option);
+			})
+		}
+	  }
+
+  //删除条目
+	function deleteRow(rowId) {
+		layer.confirm('确定要移除本条记录？', function(index){
+			$("#"+rowId).remove();
+	        layer.close(index);
+	     });
+		
+	}
+
+
+
+//保存农气指导
+function  saveSQ(obj){
+
+            var selectInfluenceName=$("select[name='elementId'] option:selected");
+            var selectInfluenceMixValue=$("input[name='minVal']");
+            var selectInfluenceMaxValue=$("input[name='maxVal']");
+		      var influenceArray=new Array();//所有的影响指标id
+		      var influenceMixArray=new Array()//影响的最小值
+		      var influenceMaxArray=new Array()//影响的最大值
+
+		   for (i=0;i<selectInfluenceName.length;i++){//拿到所有的病虫害
+		       influenceArray.push($(selectInfluenceName[i]).val());
+		       if($(selectInfluenceMixValue[i]).val()==""||$(selectInfluenceMaxValue[i]).val()==""){
+                layer.alert("参数值不允许为空", {
+			          icon: 5,
+			          title: "提示"
+		             });
+					 return false;
+		       }
+		       influenceMixArray.push($(selectInfluenceMixValue[i]).val());
+		       influenceMaxArray.push($(selectInfluenceMaxValue[i]).val());
+		    }
+		   
+         
+      
+           $.ajax({
+				type : 'post',
+				url : domainName+"/api-ag/farming/saveInfo",
+				dataType: "json",
+               traditional: true,
+				data :{
+				areaId:$("#areaId option:selected").val(),
+				seedId:$("#seedId option:selected").val(),
+				cropPeriodId:$("#cropPeriodId option:selected").val(),
+				level:$("#level option:selected").val(),
+				warnIcon:$("#warnIcon option:selected").val(),
+                name: $("#name").val(),
+                liveDescription:$("#liveDescription").val(),
+                analytic: $("#analytic").val(),
+                guidance: $("#guidance").val(),
+                nomalDesc: $("#nomalDesc").val(),
+                matchingPosition:$("#matchingPosition option:selected").val(),
+				noMatchingPosition:$("#noMatchingPosition option:selected").val(),
+				elementId:influenceArray,
+				minVal:influenceMixArray,
+				maxVal:influenceMaxArray
+				},
+				success : function(data) {
+				   if(data.code==200){//成功
+				  layer.alert("保存成功", {
+			          icon: 6,
+			          title: "提示"
+		             });
+	             location.href = "nongqi_direct_list.html"; 
+				   }else{//失败
+				   layer.alert("保存失败", {
+			          icon: 5,
+			          title: "提示"
+		             });
+					 return false;
+				   }
+				}
+            });
+
+};
+
+
+     
+
+
+
+
+
+
+
+
+
+
+
+
+</script>

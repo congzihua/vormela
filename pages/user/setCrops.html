@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en-us" id="extr-page">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" media="screen" href="../../layui/css/layui.css">
+</head>
+<body>
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+
+
+            <div class="form-group">
+				<label class="col-md-2 control-label">作物类型</label>
+				<div class="col-md-10" style="width: 100px">
+				<select class="form-control input-sm" name="croptype" id="croptype">
+						<option value="0">大田作物</option>
+						<option value="1">设施农业</option>
+				</select>
+				</div>
+			</div>
+             <div class="col-sm-4">
+						<div class="form-group">
+						    <label for="" class="col-sm-4 control-label">作物名称:(*多种作物请按照@隔开，比如小麦@棉花@土豆)</label>
+						    <div class="col-sm-8">
+						      <textarea style="width:300px;height:200px;overflow:scroll;resize:none;" name="cropname" id="cropname" rows="6"></textarea>
+						    </div>
+					    </div>
+			</div>
+			</div>
+			 <div class="layui-form-item">
+			    <div class="layui-input-block">
+			      <button class="layui-btn" onclick="save()">立即提交</button>
+			    </div>
+			  </div>
+
+	</div>
+
+	<script src="../../js/constant.js"></script>
+	<script type="text/javascript" src="../../js/libs/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="../../js/jq.js"></script>
+	<script type="text/javascript" src="../../js/common.js"></script>
+	<script type="text/javascript" src="../../layui/layui.js"></script>
+    <script type="text/javascript">
+        //选中用户拥有的角色
+      var userId = getUrlParam("userId");
+      var region=getQueryString("region");
+
+
+	function save() {
+		$.ajax({
+			type : 'post',
+			url : domainName+'/agplus/saveUserconfig',
+			contentType: "application/json; charset=utf-8",  
+			data: JSON.stringify({
+			cropname: $('#cropname').val()+"@",
+			userid:userId,
+			croptype:$('#croptype').val(),
+			regin:region
+			}),
+			success : function(data) {
+				layer.msg("保存成功", {shift: -1, time: 500}, function(){
+					var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+					parent.layer.close(index);
+                });
+			}
+		});
+		
+		
+	}
+	
+		
+</script>
+</body>
+</html>

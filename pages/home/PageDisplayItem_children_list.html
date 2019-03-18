@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/dataTables.bootstrap.min.css">
+<link rel="stylesheet" href="../../layui/css/layui.css" media="all" />
+</head>
+<body>
+    <div>
+	 <input type="hidden" id="id" name="id">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div>
+                <header style="height: 100%">
+					 <div align="left">
+                        <table style="width: 100%">
+                            <tr>
+                                <td>
+                                	<form class="form-inline" onsubmit="return false">
+										<div class="form-group">
+											子首页显示项名：
+											<input id="name" type="text" class="form-control" placeholder="子首页显示项名">
+											 启用状态：
+                                            <select class="form-control input-sm" id="isEnable">
+                                                <option value="">全部</option>
+                                                <option value="1">启用</option>
+                                                <option value="0">未启用</option>
+                                            </select>
+										</div>
+                                        <button id="searchBt" class="layui-btn layui-btn-sm" ><i class="layui-icon">&#xe615;</i>搜索</button>
+									</form>
+                                </td>
+                          
+                                   <td align="right">
+	                   				<button class="layui-btn layui-btn-sm" onclick="trunAdd()" permission="bussiness_childern_save">
+                                      <i class="layui-icon">&#xe608;</i> 添加首页显示项名
+                                    </button>
+	                   			</td>
+                              
+                            </tr> 
+                        </table>
+                    </div>
+                </header>
+                
+                <div>
+                    <div class="widget-body no-padding">
+                        <table id="dt-table" class="table table-striped table-bordered table-hover" style="width:100%">
+                            <thead>
+                                <tr>
+                                </tr>                       
+                                <tr>
+                             <th>ID</th>
+							<th>排序</th>
+							<th>名字</th>
+							<th>所属业务</th>
+							<th>创建人</th>
+							<th>修改人</th>
+							<th>是否启用</th>
+							<th>创建日期</th>
+							<th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+<script src="../../js/constant.js"></script>
+<script type="text/javascript" src="../../js/libs/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../js/common.js"></script>
+<script type="text/javascript" src="../../js/jq.js"></script>
+<script type="text/javascript" src="../../layui/layui.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="../../js/my/permission.js"></script>
+<script type="text/javascript">
+
+var pers = checkPermission();
+
+var example;
+
+
+
+
+
+	function trunAdd(){
+	         var names = getQueryString("name");
+			 var parentid = getUrlParam("id");
+            window.location.href="saveorupdate_childrenpageDisplayItem.html?parentid="+parentid+"&parentname="+names;
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+layui.use(['layer','util', 'laydate'], function(){
+    var layer = layui.layer;
+    var util = layui.util;
+     
+    function init(){
+		    var parentid = getUrlParam("id");
+			var names = getQueryString("name");
+		     $('#id').val(id);
+    	example = 
+        	$('#dt-table').DataTable({
+            	"searching": false,
+            	"processing": false,
+            	"serverSide" : true,
+            	"ordering" :false,
+            	"language": {
+                    "url": "../../js/plugin/datatables/Chinese.lang"
+                },
+            	"ajax": {
+            		"url" : domainName + "/api-b/pageDisplay/PageDisplayItemServerChildren",
+            		"type":"get",
+            		"data":function(d){
+					    d.parentId=parentid;
+        				d.name = $('#name').val();
+        				d.isEnable = $('#isEnable').val();;
+            		},
+            		"dataSrc": function (json) {
+            			json.recordsTotal=json.total;
+            			json.recordsFiltered=json.total;
+            			return json.data;
+            		},
+        			"error":function(xhr, textStatus, errorThrown){
+        				var msg = xhr.responseText;
+        				console.log(msg);
+        				if (xhr.status == 400) {
+        					layer.msg(JSON.parse(msg).message);
+        				} else if (xhr.status == 401) {
+        					localStorage.removeItem("token");
+        					layer.msg("token过期，请重新登录", {shift: -1, time: 1000}, function(){
+                                location.href = loginPage;
+                            });
+        				} else if (xhr.status == 403) {
+        					layer.msg('未授权');
+        				} else if (xhr.status == 500) {
+        					var info = JSON.parse(msg);
+        					var exception = info.exception;
+        					var message = info.message;
+        					layer.msg('系统错误：' + (exception ? exception : message));
+        				}
+        			}
+            	},
+            	"dom": "<'dt-toolbar'r>t<'dt-toolbar-footer'<'col-sm-10 col-xs-12 hidden-xs'i><'col-xs-12 col-sm-10' p v>>",	
+                "columns": [
+				     { "data": "id", "defaultContent": ""},
+                	 { 
+					 "data": "sort", 
+					 "defaultContent": "",
+					 "orderable":true,
+					 "render": function (data, type, row) {
+                    		  return data;
+                      	}
+					 },
+					 { "data": "name", "defaultContent": ""},
+					  { 
+					 "data": " ", 
+					 "defaultContent": "",
+					 "orderable":true,
+					 "render": function (data, type, row) {
+                    		  return names;
+                      	}
+					 },
+                	// { "data": "linkUrl", "defaultContent": ""},
+					 { "data": "createUser", "defaultContent": ""},
+					 { "data": "updateUser", "defaultContent": ""},
+					 	{ 
+                    	"data": "isEnable", 
+                    	"defaultContent": "",
+                    	"render": function (data, type, row) {
+                    		if(data =="0"){
+                    			return "未启用";
+                    		} else if(data == "1") {
+                    			return "已启用";
+                    		}
+                    		return "已暂停";
+                      	}
+                    },
+					{ 
+                    	"data": "createTime",
+                    	"defaultContent": "",
+                    	"render": function (data, type, row) {
+                    		return util.toDateString(data);
+                    	}
+                    },
+					
+                    { 
+                    	"data": "", 
+                    	"defaultContent": "",
+                    	"orderable":false,
+                    	"render": function (data, type, row) {
+                    		var id = row['id'];
+                            var del = buttonDel(id, "bussiness_children_del", pers);
+							var href = "saveorupdate_childrenpageDisplayItem.html?id=" + id+"&parentid="+parentid+"&parentname="+names;
+                            var edit = buttonEdit(href, "bussiness_children_update", pers);
+                            return del + edit;
+                      	}
+                    },
+                ],
+            } );
+    }
+
+    init();
+});
+
+
+function del(id){
+	layer.confirm('确定要删除吗？', {
+        btn : [ '确定', '取消' ]
+    }, function() {
+    	$.ajax({
+            type : 'delete',
+            url : domainName + '/api-b/pageDisplay/deletePageDisplayItemServerChildren?id='+id,
+            success : function(data) {
+                example.ajax.reload();
+                layer.msg("删除成功");
+            }
+        });
+        
+        layer.close(1);
+    });
+}
+
+$("#searchBt").click(function(){
+	example.ajax.reload();
+});
+
+
+</script>
+</html>

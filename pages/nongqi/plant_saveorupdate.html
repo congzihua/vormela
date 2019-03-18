@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../layui/css/layui.css">
+</head>
+<body>
+    <input type="hidden" id="id" name="id">
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+		<fieldset>
+			<div class="form-group">
+				<label class="col-md-2 control-label">农作物名称</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="农作物名称" type="text" name="cropName" id="cropName" maxlength="255">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">内容</label>
+				<div class="col-md-10">
+					<textarea class="layui-textarea" id="describe" >  
+					</textarea>
+				</div>
+			</div>
+			<div class="form-actions">
+				<div class="row" align="center">
+					<div class="col-md-12">
+					    <button class="btn btn-primary" onclick="location.href='t_plant_catogory.html'">返回</button>
+						<button class="btn btn-primary" type="submit" onclick="saveorupdate(this, true)">
+							<i class="fa fa-save"></i> 保存
+						</button>
+					</div>
+				</div>
+			</div>
+
+		</fieldset>
+	</div>
+
+	<script src="../../js/constant.js"></script>
+	<script type="text/javascript" src="../../js/libs/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="../../js/jq.js"></script>
+	<script type="text/javascript" src="../../layui/layui.js"></script>
+	<script type="text/javascript" src="../../js/common.js"></script>
+	<script type="text/javascript">
+	    var layer 
+	layui.use(['layer','util', 'laydate'], function(){
+          layer= layui.layer;
+	});
+	
+	
+	
+	
+	
+	
+
+           $(function(){
+               initData();
+            });
+		 //初始化加载
+        function initData(){
+            var id = getUrlParam("id");
+            if(id != ""){
+                $.ajax({
+                    type : 'get',
+                    url : domainName + '/api-ag/tcropseed/selectEnById?id='+id,
+                    async : false,
+                    success : function(data) {
+                        $("#id").val(data.data.id);
+                        $("#cropName").val(data.data.cropName);
+                        $("#describe").text(data.data.describe);
+                    }
+                });
+            }
+        }
+		
+	function saveorupdate(obj) {
+	       var msg="";
+	       var url="";
+	       var id = getUrlParam("id");
+	       if(id != ""){//走修改
+		     url=domainName + '/api-ag/tcropseed/updateById';
+			 msg="修改成功";
+			 errormsg="修改失败";
+		   }else{//保存
+		      url=domainName + '/api-ag/tcropseed/saveClassification';
+			  msg="保存成功";
+			 errormsg="保存失败";
+		   }
+			$.ajax({
+				type : 'post',
+				url : url,
+				data :{
+				 id:id,
+				 cropName:$("#cropName").val(),
+				 describe:$("#describe").val()
+				},
+				success : function(data) {
+				   if(data.code==200){//成功
+				    layer.alert(msg, {
+			          icon: 6,
+			          title: "提示"
+		             });
+					location.href="t_plant_catogory.html";
+				   }else{//失败
+				   layer.alert(errormsg, {
+			          icon: 5,
+			          title: "提示"
+		             });
+					 return false;
+				   }
+				}
+			});
+		}
+		
+	</script>
+</body>
+</html>

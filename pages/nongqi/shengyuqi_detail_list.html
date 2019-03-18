@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>每个种子对应相应的生育期列表</title>
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/dataTables.bootstrap.min.css">
+<link rel="stylesheet" href="../../layui/css/layui.css" media="all" />
+</head>
+<body>
+    <div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div>
+            
+                
+                <div>
+                    <div class="widget-body no-padding">
+                        <table id="dt-table" class="table table-striped table-bordered table-hover" style="width:100%">
+                            <thead>
+                                <tr>
+                                </tr>                       
+                                <tr>
+                             <th>ID</th>
+							<th>生育期名称</th>
+							<th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+	
+	
+
+</body>
+
+
+<script src="../../js/constant.js"></script>
+<script type="text/javascript" src="../../js/libs/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../js/jq.js"></script>
+<script type="text/javascript" src="../../layui/layui.js"></script>
+<script type="text/javascript" src="../../js/common.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="../../js/my/permission.js"></script>
+<script type="text/javascript">
+
+var pers = checkPermission();
+
+var example;
+      var id = getUrlParam("id");
+	  var area_name=getQueryString("area_name");
+	  var crop_name=getQueryString("crop_name");
+	  var type_name=getQueryString("type_name");
+	  
+layui.use(['layer','util', 'laydate'], function(){
+    var layer = layui.layer;
+    var util = layui.util;
+
+    function init(){
+    	example = 
+        	$('#dt-table').DataTable({
+            	"searching": false,
+            	"processing": false,
+            	"serverSide" : true,
+            	"ordering" :false,
+            	"language": {
+                    "url": "../../js/plugin/datatables/Chinese.lang"
+                },
+            	"ajax": {
+            		"url" : domainName + "/api-ag/growth/getTseedPeriod?id="+id,
+            		"type":"get",
+            		"data":function(d){
+            		},
+            		"dataSrc": function (json) {
+            			json.recordsTotal=json.total;
+            			json.recordsFiltered=json.total;
+            			return json.data;
+            		},
+        			"error":function(xhr, textStatus, errorThrown){
+        				var msg = xhr.responseText;
+        				if (xhr.status == 400) {
+        					layer.msg(JSON.parse(msg).message);
+        				} else if (xhr.status == 401) {
+        					localStorage.removeItem("token");
+        					layer.msg("token过期，请重新登录", {shift: -1, time: 1000}, function(){
+                                location.href = loginPage;
+                            });
+        				} else if (xhr.status == 403) {
+        					layer.msg('未授权');
+        				} else if (xhr.status == 500) {
+        					var info = JSON.parse(msg);
+        					var exception = info.exception;
+        					var message = info.message;
+        					layer.msg('系统错误：' + (exception ? exception : message));
+        				}
+        			}
+            	},
+            	"dom": "<'dt-toolbar'r>t<'dt-toolbar-footer'<'col-sm-10 col-xs-12 hidden-xs'i><'col-xs-12 col-sm-10' p v>>",	
+                "columns": [
+				     { "data": "id", "defaultContent": ""},
+					 { "data": "periodName", "defaultContent": ""},
+					  { 
+                    	"data": "", 
+                    	"defaultContent": "",
+                    	"orderable":false,
+                    	"render": function (data, type, row) {
+                    		var id = row['id'];
+							var periodName = row['periodName'];
+                            var guideInfo = row['guideInfo'];
+                            var dayCount = row['dayCount'];
+                            var sort = row['sort'];
+                            var del = buttonDel(id, "shengyuqi_step_c_del", pers);
+                            var edit = buttonProEdit(id,periodName,guideInfo,dayCount,sort,"shengyuqi_step_c_update", pers);
+                            return del + edit;
+                      	}
+                    },
+                ],
+            } );
+    }
+
+           init();
+	
+	  
+});
+ 
+ 
+//生育期详情
+ function buttonProEdit(id,periodName,guideInfo,daycount,sort,permission, pers){
+ 
+ if(permission != ""){
+		if ($.inArray(permission, pers) < 0) {
+			return "";
+		}
+	}
+    var btn = $("<button class='layui-btn layui-btn-xs' title='修改生育期' onclick='openDeatils("+id+",\""+periodName+"\",\""+guideInfo+"\","+daycount+","+sort+",)'><i class='layui-icon'>&#xe642;</i></button>");
+	return btn.prop("outerHTML");
+ }
+ 
+ 
+ 
+function openDeatils(data,periodName,guideInfo,daycount,sort){
+   parent.layer.open({
+    type: 2,
+    title: [area_name+">>>>"+crop_name+"("+type_name+')修改'+periodName+'指标',"background:black"],
+    maxmin: true,
+    shadeClose: true, //点击遮罩关闭层
+    area: ['1100px','600px'],
+    content:['/pages/nongqi/shengyuqi_update.html?periodId='+data+"&area_name="+area_name+"&crop_name="+crop_name+"&periodName="+periodName+"&daycount="+daycount+"&sort="+sort+"&guideInfo="+guideInfo, 'yes'], 
+        success: function(layero, index) {
+                    layer.iframeAuto(index);
+
+                },
+  });
+
+}
+ 
+ 
+ 
+ 
+ 
+
+function del(id){
+	layer.confirm('确定要删除相应的生育期吗？', {
+        btn : [ '确定', '取消' ]
+    }, function() {
+    	$.ajax({
+            type : 'delete',
+            url : domainName + '/api-ag/growth/deleteSeedPeriod?id='+id,
+            success : function(data) {
+                example.ajax.reload();
+                layer.msg("删除成功");
+            }
+        });
+        
+        layer.close(1);
+    });
+}
+
+
+
+</script>
+</html>

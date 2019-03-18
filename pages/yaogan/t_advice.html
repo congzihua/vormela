@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>建议添加</title>
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/dataTables.bootstrap.min.css">
+<link rel="stylesheet" href="../../layui/css/layui.css" media="all" />
+</head>
+
+<body>
+    
+
+  	<div class="index-set">
+		  		<div class="row title">
+		  			<div class="col-sm-12">
+		  				<h3 class="pull-left">建议设置</h3>
+		  				<a id="add" onclick="blankRowInfo();" class="btn btn-primary pull-right" href="javascript:;"><i class="fa fa-plus"></i>添加</a>
+		  			</div>
+		  		</div>
+		  		<div id="quotaRows">
+			  		<div class="row" id="rowIds0" name="rowIds">
+			  			<div class="col-sm-4">
+			  				<div class="form-group">
+							    <label for="" class="col-sm-4 control-label">TIF等级:</label>
+							    <div class="col-sm-8">
+							      <input id="elementId" class="form-control" name="elementId" attr="elementId">
+							      </input>
+							    </div>
+						    </div>
+			  			</div>
+			  			<div class="col-sm-3">
+			  				<div class="form-group">
+							    <label for="" class="col-sm-4 control-label">建议:</label>
+							    <div class="col-sm-8">
+							      <textarea class="form-control" rows="3"  cols="100" name="minVal" id="minVal"></textarea>
+							    </div>
+						    </div>
+			  			</div>
+			  			<input type="button" class="del-index" value="删除" onclick="deleteRow('rowIds0');"/>
+			  		</div>
+		  		</div>
+		  	</div>
+
+
+
+             <div class="form-actions">
+				<div class="row" align="center">
+					<div class="col-md-12">
+						<button class="btn btn-primary" type="submit" onclick="saveAdvice(this, true)">
+							<i class="fa fa-save"></i> 保存
+						</button>
+					</div>
+				</div>
+			</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+<script src="../../js/constant.js"></script>
+<script type="text/javascript" src="../../js/libs/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../js/jq.js"></script>
+<script type="text/javascript" src="../../js/common.js"></script>
+<script type="text/javascript" src="../../layui/layui.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="../../js/my/permission.js"></script>
+<script type="text/javascript">
+
+
+
+
+      var id = getUrlParam("id");
+
+
+     var addIndex = 1;
+    
+	function blankRowInfo (rowId,index) {
+		
+		var str ='<div class="row" id="rowIds'+addIndex+'" name="rowIds"><div class="col-sm-4"><div class="form-group"><label name="yxQuota" for="" class="col-sm-4 control-label">TF等级:</label><div class="col-sm-8">';
+		str +='<input id="elementId'+addIndex+'" class="form-control" name="elementId" attr="elementId">';
+		str += '</input></div></div></div><div class="col-sm-3"><div class="form-group"><label for="" class="col-sm-4 control-label">建议:</label>';
+		str += '<div class="col-sm-8"><textarea class="form-control" rows="3" name="minVal" id="minVal'+addIndex+'"></textarea>';
+		str += '</div></div></div>';
+		str += '<input type="button" class="del-index" value="删除" onclick="deleteRow(\'rowIds'+addIndex+'\');"/></div>';
+		addIndex++;
+		$("#quotaRows").append(str);
+	}
+
+
+  //删除条目
+	function deleteRow(rowId) {
+		layer.confirm('确定要移除本条记录？', function(index){
+			$("#"+rowId).remove();
+	        layer.close(index);
+	     });
+		
+	}
+
+
+
+
+  //保存建议
+  function saveAdvice(obj){
+   		 var influenceMixArray=new Array()//tif等级
+		 var influenceMaxArray=new Array()//建议
+         var selectInfluenceMixValue=$("input[name='elementId']");
+         var selectInfluenceMaxValue=$("textarea[name='minVal']");
+      for (i=0;i<selectInfluenceMixValue.length;i++){//拿到所有的等级
+            influenceMixArray.push($(selectInfluenceMixValue[i]).val());
+		    influenceMaxArray.push($(selectInfluenceMaxValue[i]).val());
+
+      }
+
+      var level=influenceMixArray.join(",");
+      var desc= influenceMaxArray.join("@");
+     var access_token = localStorage.getItem("access_token");
+       $.ajax({
+				type : 'post',
+				url : domainName +'/api-remote/remote/saveRemoteAdvice?access_token='+access_token, 
+				dataType: "json",
+				data: {
+	  		      level:level,
+				  tifid:id,
+				  advice:desc
+	 	          },
+				success : function(data) {
+				    if(data.code==200) {
+				       alert(data.serverMsg);
+				        var index=parent.layer.getFrameIndex(window.name);//获取当前弹出层的层级
+				         parent.layer.close(index);//关闭弹出层 
+					}else{
+					  alert(data.serverMsg);
+					}
+				}
+		});
+
+
+  }
+
+
+
+
+
+
+</script>

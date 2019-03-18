@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/dataTables.bootstrap.min.css">
+<link rel="stylesheet" href="../../layui/css/layui.css" media="all" />
+</head>
+<body>
+    <div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div>
+                <header style="height: 100%">
+					 <div align="left">
+                        <table style="width: 100%">
+                            <tr>
+                                <td>
+                                	<form class="form-inline" onsubmit="return false">
+										<div class="form-group">
+                                            种子名称：
+                                            <input id="cropName" type="text" class="form-control" placeholder="种子名称">
+                                            站点名称：
+                                            <input id="stationName" type="text" class="form-control" placeholder="站点名称">
+											时间：
+											<input type="text" class="form-control" placeholder="开始时间" id="beginTime">
+											<input type="text" class="form-control" placeholder="结束时间" id="endTime">
+                                            工单状态：
+                                            <select class="form-control input-sm" id="workStatus">
+                                                <option value="">全部</option>
+                                                <option value="0">未配置</option>
+                                                <option value="1">已配置</option>
+                                            </select>
+                                                VIP订单：
+                                            <select class="form-control input-sm" id="userIdentity">
+                                                <option value="">全部</option>
+                                                <option value="VIP">vip订单</option>
+                                            </select>
+										</div>
+                                        <button id="searchBt" class="layui-btn layui-btn-sm" ><i class="layui-icon">&#xe615;</i>搜索</button>
+                                          <button class="layui-btn layui-btn-sm" permission="turang_authority" id="auditSuggest">
+                                        <i class="layui-icon">&#xe608;</i> 批量确认
+                                       </button>
+									</form>
+                                </td>
+                          
+                        
+                            </tr> 
+                        </table>
+                    </div>
+                </header>
+                
+                <div>
+                    <div class="widget-body no-padding">
+                        <table id="dt-table" class="table table-striped table-bordered table-hover" style="width:100%">
+                            <thead>
+                                <tr>
+                                </tr>                       
+                                <tr>
+                             <th>ID</th>
+							<th>地块名称</th>
+							<th>种子名称</th>
+							<th>创建人</th>
+							<th>播种时间</th>
+							<th>创建日期</th>
+							<th>工单日期</th>
+							<th>接单时间</th>
+                            <th>VIP订单</th>
+					        <th>工单状态</th>
+							<th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+<script src="../../js/constant.js"></script>
+<script type="text/javascript" src="../../js/libs/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../js/jq.js"></script>
+<script type="text/javascript" src="../../layui/layui.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="../../js/my/permission.js"></script>
+<script type="text/javascript">
+
+var pers = checkPermission();
+
+var example;
+
+layui.use(['layer','util', 'laydate'], function(){
+    var layer = layui.layer;
+    var util = layui.util;
+    var laydate = layui.laydate;
+    laydate.render({
+       elem: '#beginTime'
+    });
+    laydate.render({
+       elem: '#endTime'
+    });
+    
+    function init(){
+    	example = 
+        	$('#dt-table').DataTable({
+            	"searching": false,
+            	"processing": false,
+            	"serverSide" : true,
+            	"ordering" :false,
+            	"language": {
+                    "url": "../../js/plugin/datatables/Chinese.lang"
+                },
+            	"ajax": {
+            		"url" : domainName + "/api-ag/agrometWork/queryAgrometWork",
+            		"type":"get",
+            		"data":function(d){
+        				d.startDate = $('#beginTime').val();
+        				d.endDate  = $('#endTime').val();
+                        d.cropName = $('#cropName').val();
+                        d.stationName = $('#stationName').val();
+                        d.workStatus = $('#workStatus').val();
+                        d.userIdentity=$('#userIdentity').val();
+            		},
+            		"dataSrc": function (json) {
+            			json.recordsTotal=json.total;
+            			json.recordsFiltered=json.total;
+            			return json.data;
+            		},
+        			"error":function(xhr, textStatus, errorThrown){
+        				var msg = xhr.responseText;
+        				console.log(msg);
+        				if (xhr.status == 400) {
+        					layer.msg(JSON.parse(msg).message);
+        				} else if (xhr.status == 401) {
+        					localStorage.removeItem("token");
+        					layer.msg("token过期，请重新登录", {shift: -1, time: 1000}, function(){
+                                location.href = loginPage;
+                            });
+        				} else if (xhr.status == 403) {
+        					layer.msg('未授权');
+        				} else if (xhr.status == 500) {
+        					var info = JSON.parse(msg);
+        					var exception = info.exception;
+        					var message = info.message;
+        					layer.msg('系统错误：' + (exception ? exception : message));
+        				}
+        			}
+            	},
+            	"dom": "<'dt-toolbar'r>t<'dt-toolbar-footer'<'col-sm-10 col-xs-12 hidden-xs'i><'col-xs-12 col-sm-10' p v>>",	
+                "columns": [
+				     { 
+				     	"data": "id", 
+				       "defaultContent": "",
+				         "render": function (data, type, row) {
+                            return "<input type='checkbox' value="+data+" name='aa' />";
+                        }
+				      },
+                	 { 
+					 "data": "areaName", 
+					 "defaultContent": "",
+					 "render": function (data, type, row) {
+                    		  return data;
+                      	}
+					 },
+					 { "data": "cropName", "defaultContent": ""},
+                	 { "data": "createBy", "defaultContent": ""},
+					{ 
+                    	"data": "seedDate",
+                    	"defaultContent": "",
+                    	"render": function (data, type, row) {
+                    		return util.toDateString(data);
+                    	}
+                    },
+					
+					{ 
+                    	"data": "createDate",
+                    	"defaultContent": "",
+                    	"render": function (data, type, row) {
+                    		return util.toDateString(data);
+                    	}
+                    },
+                    { 
+                        "data": "workDate",
+                        "defaultContent": "",
+                        "render": function (data, type, row) {
+                            return util.toDateString(data);
+                        }
+                    },
+                    { 
+                        "data": "workSingleTime",
+                        "defaultContent": "",
+                        "render": function (data, type, row) {
+                            return util.toDateString(data);
+                        }
+                    },
+					 { "data": "userIdentity", 
+                       "defaultContent": "",
+                        "render": function (data, type, row) {
+                            if(data=='VIP'){//
+                              return "VIP订单";
+                            }
+                            return "普通订单";
+                        }
+                      },
+					
+                	{ 
+                    	"data": "workStatus", 
+                    	"defaultContent": "",
+                    	"render": function (data, type, row) {
+                    		if(data =="0"){
+                    			return "未配置";
+                    		}
+                    		return "已配置";
+                      	}
+                    },
+                    { 
+                        "data": "deleteFlag", 
+                        "defaultContent": "",
+                        "render": function (data, type, row) {
+                            if(data =="0"){
+                                return "正常数据";
+                            }
+                            return "已删除";
+                        }
+                    },
+	
+                ],
+            } );
+    }
+
+    init();
+});
+
+
+
+
+
+$("#searchBt").click(function(){
+	example.ajax.reload();
+});
+
+
+$("#auditSuggest").click(function(){
+    var checkedDiseaId = $("input:checkbox[name=aa]:checked");
+    var checkedDiseaIdArray=new Array();//病虫害
+      if(checkedDiseaId.length==0){
+           layer.alert("请勾选数据", {
+                      icon: 5,
+                      title: "提示"
+                     });
+                   return false;
+       }
+    
+     for(i=0;i<checkedDiseaId.length;i++){
+         checkedDiseaIdArray.push($(checkedDiseaId[i]).val());
+     }
+       var ids = checkedDiseaIdArray.join(',');
+       $.ajax({
+                type : 'post',
+                url : domainName+"/api-ag/agrometWork/updateAgrometWorkStatus",
+                dataType: "json",
+                data :{
+                 workStatus:1,
+                 ids:ids
+                },
+                success : function(data) {
+                   if(data.resultCode==200){//成功
+                  layer.alert("审核成功", {
+                      icon: 6,
+                      title: "提示"
+                     });
+                   }else{//失败
+                   layer.alert("审核失败", {
+                      icon: 5,
+                      title: "提示"
+                     });
+                   }
+                  example.ajax.reload();
+                }
+      });
+
+   
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Insert title here</title>
+  <link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" media="screen" href="../../css/dataTables.bootstrap.min.css">
+  <link rel="stylesheet" href="../../layui/css/layui.css" media="all" />
+  <link rel="stylesheet" href="../../css/global.css"/>
+</head>
+<body>
+<div>
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div>
+      <!-- search-form -->
+      <header style="height: 100%">
+        <div align="left">
+          <table style="width: 100%">
+            <tr>
+              <td>
+                <form class="form-inline" id="searchForm" onsubmit="return false">
+                  <div class="form-group">
+                    区县：
+                    <input type="text" class="form-control" name="areaName" placeholder="区县">
+                  </div>
+                  <div class="form-group">
+                    品种：
+                    <input type="text" class="form-control" name="cropName" placeholder="品种">
+                  </div>
+                  <div class="form-group">
+                    类型:
+                    <select class="form-control" name="sourceType	">
+                      <option value="">请选择</option>
+                      <option value="t_farming">农事</option>
+                      <option value="t_disease">病虫害</option>
+                    </select>
+                  </div>
+                  <button id="searchBt" class="layui-btn layui-btn-sm" ><i class="layui-icon">&#xe615;</i>搜索</button>
+                </form>
+              </td>
+              <td align="right">
+                <button class="layui-btn layui-btn-sm" id="batchCheck">
+                  <i class="layui-icon">&#xe608;</i> 批量审核
+                </button>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </header>
+      <!-- // search-form -->
+      <!-- table -->
+      <div class="widget-body no-padding">
+        <table id="dt-table" class="table table-striped table-bordered table-hover" style="width:100%"></table>
+      </div>
+      <!-- // table -->
+    </div>
+  </div>
+</div>
+</body>
+
+
+<script src="../../js/constant.js"></script>
+<script type="text/javascript" src="../../js/libs/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../js/jq.js"></script>
+<script type="text/javascript" src="../../layui/layui.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="../../js/my/permission.js"></script>
+<script type="text/javascript" src="../../js/common.js"></script>
+<script type="text/javascript">
+  var pers = checkPermission();
+
+  layui.use(["layer"], function(){
+    // 初始化table
+    var dataTable = $("#dt-table").DataTable({
+      "ajax": {
+        "url" : domainName + "/api-ag/suggest/todayList",
+        "type":"get",
+        "data":function(d){
+          $('#searchForm').serializeArray().forEach(function(data){
+            d[data.name] = data.value;
+          });
+        },
+      },
+      "columns": [
+        {
+          data: "id",
+          width: 60,
+          render: function (data, type, row) {
+            return '<input type="checkbox" value="' + data + '"/>';
+          }
+        },
+        {data: "id", title: "ID"},
+        {data: "areaName", title: "区县"},
+        {data: "cropName", title: "品种名称"},
+        {data: "sourceName", title: "类型"},
+        {data: "periodName", title: "生育期"},
+        {data: "title", title: "标题"},
+        {
+          data: "level",
+          title: "级别",
+          render: function (lev, type, row) {
+            if (lev == 0) {//0：默认 5：轻度  10：中度 15：严重
+              return "默认";
+            }else if (lev == 5) {
+              return "轻度";
+            }else if (lev == 10) {
+              return "中度";
+            }else if (lev == 15) {
+              return "严重";
+            }
+          }
+        },
+        {data: "solution", title: "解决方案", width: 300},
+        {
+          data: "createDate",
+          title: "创建时间",
+          render: function (data, type, row) {
+            return $.formatDate(data, "yyyy-MM-dd");
+          }
+        },
+        {
+          data: "id",
+          title: "操作",
+          render: function (data, type, row) {
+            return '<button type="button" class="layui-btn layui-btn-xs btn-edit" data-id="' + data + '">编辑</button>'
+                  + '<button type="button" class="layui-btn layui-btn-xs btn-check" data-id="' + data + '">审核</button>';
+          }
+        },
+      ],
+    });
+    // 点击搜索
+    $("#searchBt").click(function(){
+      dataTable.ajax.reload();
+    });
+    // 点击批量审核
+    $("#batchCheck").on("click", function(){
+      var ids = $("#dt-table :checked:not(.ckAll)").map(function(){
+        return $(this).val();
+      }).get().join(",");
+      if (!ids) {
+        layer.msg("请选择要审核的数据进行审核操作！");
+        return;
+      }
+      layer.confirm("确定要批量审核通过勾选的记录？", function(index){
+        $.ajax({
+          url: domainName + "/api-ag/suggest/checkSuggest?status=1&ids="+ids,
+          type: "post",
+          success:function(response){
+            if(response.code == 200){
+              layer.msg(response.msg,{
+                time: 1000,
+              }, function(){
+                location.reload();
+              });
+            }else{
+              layer.msg(response.msg);
+            }
+          }
+        });
+      });
+    });
+
+    // 点击编辑
+    $(document).on('click', '.btn-edit', function(){
+      var id = $(this).data("id");
+      layer.open({
+        type: 2,
+        title: '编辑',
+        maxmin: true,
+        shadeClose: true, //点击遮罩关闭层
+        area: ['1000px', '700px'],
+        content: 'suggest_edit.html?id=' + id,
+      });
+    });
+    // 点击审核
+    $(document).on('click', '.btn-check', function(){
+      var id = $(this).data("id");
+      layer.confirm('确定要审核通过本条记录？', function(index){
+        $.ajax({
+          url: domainName +'/api-ag/suggest/checkSuggest?status=1&ids=' + id,
+          type:"get",
+          success:function(response){
+            if(response.code==200){
+              layer.msg(response.msg,{
+                time: 1000,
+              }, function(){
+                location.reload();
+              });
+            }else{
+              layer.msg(response.msg);
+            }
+          }
+        })
+      })
+    });
+  });
+</script>
+</html>

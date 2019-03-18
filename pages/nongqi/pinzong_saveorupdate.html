@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../layui/css/layui.css">
+<link href="../../css/city-picker.css" rel="stylesheet" type="text/css" />
+<style>
+        img{
+            transform:scale(2);//设置缩放比例
+            -ms-transform:scale(2);
+            -webkit-transform:scale(2);
+            -o-transform:scale(2);
+            -moz-transform:scale(2);
+        }
+</style>
+</head>
+<body>
+    <input type="hidden" id="id" name="id">
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+		<fieldset>
+			<div class="form-group">
+				<label class="col-md-2 control-label">品种名称</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="品种名称" type="text" name="cropName" id="cropName" maxlength="255">
+				</div>
+			</div>
+		   <div class="form-group">
+				<label class="col-md-2 control-label">农作物种类</label>
+				<div class="col-md-10" id="corpKind">
+					
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">熟性</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="熟性" type="text" name="cropMaturity" id="cropMaturity" maxlength="255">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label class="col-md-2 control-label">日照特性</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="日照特性" type="text" name="lightCharact" id="lightCharact" maxlength="255">
+				</div>
+			</div>
+			
+				
+			<div class="form-group">
+				<label class="col-md-2 control-label">积温</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="积温" type="text" name="accumTemp" id="accumTemp" maxlength="255">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label class="col-md-2 control-label">全生育期</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="全生育期" type="text" name="fullGrowthPeriod" id="fullGrowthPeriod" maxlength="255">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">品种特性</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="品种特性" type="text" name="cultivarsCharact" id="cultivarsCharact" maxlength="255">
+				</div>
+			</div>
+			
+			<div id="distpicker">
+				<div class="form-group">
+				   <label class="col-md-2 control-label">选择区域:</label>
+					<div id='treebox' style="width: 500px;margin: 100px auto;"></div>
+				</div>
+			</div>
+			
+			
+			<div class="form-actions">
+				<div class="row" align="center">
+					<div class="col-md-12">
+					    <button class="btn btn-primary" onclick="location.href='pinzong_list.html'">返回</button>
+						<button class="btn btn-primary" type="submit" onclick="saveorupdate(this)">
+							<i class="fa fa-save"></i> 保存
+						</button>
+					</div>
+				</div>
+			</div>
+
+		</fieldset>
+	</div>
+
+	<script src="../../js/constant.js"></script>
+	<script type="text/javascript" src="../../tree/jquery-2.0.3.min.js"></script>
+	 <script type="text/javascript" src="../../tree/tntreebox.js"></script>
+	  <link rel="stylesheet" type="text/css" href="../../tree/tntreebox.css" />
+	<script type="text/javascript" src="../../js/jq.js"></script>
+	<script type="text/javascript" src="../../layui/layui.js"></script>
+	<script type="text/javascript" src="../../js/common.js"></script>
+	<script type="text/javascript">
+    
+	
+		var layedit, index;
+		layui.use(['layedit','upload'], function(){
+		  layedit = layui.layedit;
+		
+
+           $.ajax({
+                     type: "GET", //请求的方式获得作物分类
+                     url: domainName + '/api-ag/crop/list?start=0&length=20', 
+                     dataType: "json", //json格式，后台返回的数据为json格式的。
+                     success: function(result){
+                        var dataObj = result.data; //返回的result为json格式的数据
+                         con = "<select id='parentId'  class='input-sm'>";
+                         $.each(dataObj, function(index, item){
+                             con += "<option value="+item.id+">"+item.cropsName+"</option>";
+							});
+							 con+="</select>";
+                         $("#corpKind").html(con); //把内容入到这个div中即完成
+                    }    
+                })
+               var data = [];//区域列表
+			//获得地区列表
+			$.ajax({
+                     type: "GET", //请求的方式获
+                     url: domainName +'/api-ag/base/queryAllAreaAndSubInfosByLevel?level=2', 
+                     dataType: "json", //json格式，后台返回的数据为json格式的。
+                     success: function(result){
+                        var dataCityxz = result.data; //返回的result为json格式的数据
+                         for (var i in dataCityxz) {
+						      data.push({
+	    			          id:dataCityxz[i].id,
+	    			          name:beautySub(dataCityxz[i].areaName,5),
+	                          no_box:true,
+	    		             });
+							 for(var j in dataCityxz[i].subsetAreaList){
+							  data.push({
+	    			          id:dataCityxz[i].subsetAreaList[j].stationId,
+	    			          name:beautySub(dataCityxz[i].subsetAreaList[j].areaName,5) ,
+	    			          parent_id:dataCityxz[i].subsetAreaList[j].parentId
+	    		               });
+							 }
+							
+                        }
+						tnTreeBox('treebox','checkboxname',data);
+                        initData();
+                    }    
+                })
+
+
+		});
+	
+
+//字符串截取js	
+function beautySub(str, len) {
+      var reg = /[\u4e00-\u9fa5]/g,    //专业匹配中文
+        slice = str.substring(0, len),
+        chineseCharNum = (~~(slice.match(reg) && slice.match(reg).length)),
+        realen = slice.length*2 - chineseCharNum;
+    return str.substr(0, realen) + (realen < str.length ? "..." : "");
+    }  
+
+		 //初始化加载
+        function initData(){
+            var id = getUrlParam("id");
+            if(id != ""){
+                $.ajax({
+                    type : 'get',
+                    url : domainName + '/api-ag/breed/selectById?id='+id,
+                    async : false,
+                    success : function(data) {
+					    //id
+                        $("#id").val(data.data.id);
+						//品种名称
+                        $("#cropName").val(data.data.cropName);
+                        //回显农作物分类
+						 $("#parentId").find("option[value='"+data.data.parentId+"']").attr("selected","selected");
+						 //属性
+						 $("#cropMaturity").val(data.data.cropMaturity);
+						 //日照特性
+						$("#lightCharact").val(data.data.lightCharact);
+						//积温：
+						$("#accumTemp").val(data.data.accumTemp);
+						 //全生育期
+						$("#fullGrowthPeriod").val(data.data.fullGrowthPeriod);
+						 //品种特性:
+						$("#cultivarsCharact").val(data.data.cultivarsCharact);
+						//回显站点区域
+						var objs=data.data.seedAreas;
+						var backArea="";
+						for(var i in objs){
+						   backArea+="<div >"+objs[i].areaName+"<span v="+objs[i].areaStationId+"><a onclick='deleteHande(this)' >x</a></span></div>";
+						}
+						$('.header').html("");
+						$('.header').html(backArea);
+                    }
+                });
+            }
+        }
+		
+		
+		
+		
+		
+function deleteHande(obj){
+
+
+$(obj).parent().parent().remove();
+
+}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	function saveorupdate(obj) {
+	       var objs=$(".header").find("div").find("span");
+		   var arrs =new Array();
+		   for(i=0;i<objs.length;i++){
+		     arrs.push($(objs[i]).attr("v"));
+		   }
+	       var msg="";
+	       var url="";
+	       var id = getUrlParam("id");
+	       if(id != ""){//走修改
+		     url=domainName + '/api-ag/breed/updateTcrop';
+			 msg="修改成功";
+			 errormsg="修改失败";
+			}else{//保存
+		    url=domainName + '/api-ag/breed/saveClassification';
+			  msg="保存成功";
+			 errormsg="保存失败";
+			}
+			$.ajax({
+				type : 'post',
+				url : url,
+               dataType: "json",
+               traditional: true,
+				data :{
+				 id:id,
+				 cropName:$("#cropName").val(),
+                 parentId:$("#parentId option:selected").val(),
+				 cropMaturity:$("#cropMaturity").val(),
+				 lightCharact:$("#lightCharact").val(),
+				 accumTemp:$("#accumTemp").val(),
+				 fullGrowthPeriod :$("#fullGrowthPeriod").val(),
+				 cultivarsCharact:$("#cultivarsCharact").val(),
+				 accumTemp:$("#accumTemp").val(),
+				 county:arrs
+				},
+				success : function(data) {
+				   if(data.code==200){//成功
+				  layer.alert(msg, {
+			          icon: 6,
+			          title: "提示"
+		             });
+			   location.href = "pinzong_list.html"; 
+				   }else{//失败
+				   layer.alert(errormsg, {
+			          icon: 5,
+			          title: "提示"
+		             });
+					 return false;
+				   }
+				}
+			});
+		}
+	</script>
+</body>
+</html>

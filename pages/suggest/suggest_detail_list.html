@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Insert title here</title>
+  <link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" media="screen" href="../../css/dataTables.bootstrap.min.css">
+  <link rel="stylesheet" href="../../layui/css/layui.css" media="all" />
+  <link rel="stylesheet" href="../../css/global.css"/>
+</head>
+<body>
+<div class="container">
+  <form class="edit-form form-horizontal">
+    <!-- from-group -->
+    <div class="form-group">
+      <label class="col-sm-2 control-label">区/县:</label>
+      <div class="col-sm-10">
+        <input class="form-control" id="areaName" placeholder="区/县" disabled="disabled"/>
+      </div>
+    </div>
+    <!-- // from-group -->
+    <!-- from-group -->
+    <div class="form-group">
+      <label class="col-sm-2 control-label">品种名称:</label>
+      <div class="col-sm-10">
+        <input class="form-control" id="cropName" placeholder="品种名称" disabled="disabled"/>
+      </div>
+    </div>
+    <!-- // from-group -->
+    <!-- from-group -->
+    <div class="form-group">
+      <label class="col-sm-2 control-label">生育期:</label>
+      <div class="col-sm-10">
+        <input class="form-control" id="periodName" placeholder="生育期" disabled="disabled"/>
+      </div>
+    </div>
+    <!-- // from-group -->
+    <!-- from-group -->
+    <div class="form-group">
+      <label class="col-sm-2 control-label">标题:</label>
+      <div class="col-sm-10">
+        <input class="form-control" id="title" placeholder="标题" disabled="disabled"/>
+      </div>
+    </div>
+    <!-- // from-group -->
+    <!-- from-group -->
+    <div class="form-group">
+      <label class="col-sm-2 control-label">等级:</label>
+      <div class="col-sm-10">
+        <select class="form-control" id="level">
+          <option value="0">默认</option>
+          <option value="5">轻度</option>
+          <option value="10">中度</option>
+          <option value="15">严重</option>
+        </select>
+      </div>
+    </div>
+    <!-- // from-group -->
+    <!-- from-group -->
+    <div class="form-group">
+      <label class="col-sm-2 control-label">描述:</label>
+      <div class="col-sm-10">
+        <textarea class="form-control" rows="3" id="description"></textarea>
+      </div>
+    </div>
+    <!-- // from-group -->
+    <!-- from-group -->
+    <div class="form-group">
+      <label class="col-sm-2 control-label">解决方案:</label>
+      <div class="col-sm-10">
+        <textarea class="form-control" rows="3" id="solution"></textarea>
+      </div>
+    </div>
+  
+  </form>
+     <div class="form-actions">
+        <div class="row" align="center">
+          <div class="col-md-12">
+            <button class="btn btn-primary" type="submit" onclick="add(this, true)">
+              <i class="fa fa-save"></i> 保存
+            </button>
+          </div>
+        </div>
+      </div>
+</div>
+</body>
+
+
+<script src="../../js/constant.js"></script>
+<script type="text/javascript" src="../../js/libs/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../js/jq.js"></script>
+<script type="text/javascript" src="../../layui/layui.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="../../js/my/permission.js"></script>
+<script type="text/javascript" src="../../js/common.js"></script>
+<script type="text/javascript">
+  //权限系统
+  var pers = checkPermission();
+  var id = getUrlParam("id");
+  //引入layui
+ layui.use(['layer','util', 'laydate'], function(){
+    var layer = layui.layer;
+    var util = layui.util;
+  });
+
+        $(function(){
+               initData();
+         });
+     //初始化加载
+        function initData(){
+            if(id != ""){
+                $.ajax({
+                    type : 'get',
+                    url : domainName + '/api-ag/suggest/queryInfo?id='+id,
+                    async : false,
+                    success : function(data) {
+                        $("#areaName").val(data.data.areaName);
+                        $("#cropName").val(data.data.cropName);
+                        $("#periodName").val(data.data.periodName);
+                        $("#title").val(data.data.title);
+                        $("#level").find("option[value = '"+data.data.level+"']").attr("selected","selected");
+                          $("#description").val(data.data.description);
+                          $("#solution").val(data.data.solution);
+
+                    }
+                });
+            }
+        }
+
+
+
+  // 点击保存
+   function  add(obj){
+      $.ajax({
+        url: domainName + "/api-ag/suggest/updateSuggestById",
+        data:{
+             id:id,
+             areaName:$("#areaName").val(),
+             cropName:$("#cropName").val(),
+             periodName:$("#periodName").val(),
+             title: $("#title").val(),
+             level: $("#level").val(),
+             description: $("#description").val(),
+             solution: $("#solution").val()
+        },
+        success: function(data){
+            if(data.code==200) {
+             layer.alert('保存成功', {
+                icon: 6,
+                title: "提示"
+                 });
+            //关闭页面
+             var index=parent.layer.getFrameIndex(window.name);//获取当前弹出层的层级
+            window.parent.location.reload();//刷新父页面
+            parent.layer.close(index);//关闭弹出层 
+          }else{
+          layer.alert('保存失败', {
+                icon: 5,
+                title: "提示"
+                 });
+            return false;
+          }
+        }
+      });
+    };
+
+
+
+
+
+
+</script>
+</html>

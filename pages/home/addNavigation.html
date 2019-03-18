@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../layui/css/layui.css">
+</head>
+<body>
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+		<fieldset>
+			<div class="form-group">
+				<label class="col-md-2 control-label">顺序</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="顺序" type="text" name="sort" id="sort" maxlength="255">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">导航栏名称</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="导航栏名称" type="text" name="name" id="name" maxlength="255">
+				</div>
+			</div>
+		
+			<div class="form-group">
+				<label class="col-md-2 control-label">链接地址</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="链接地址" type="text" name="linkUrl" id="linkUrl" maxlength="128">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">状态</label>
+				<div class="col-md-10">
+					               <select class="input-sm" id="status">
+                                		<option value="0">待发布</option>
+                                		<option value="1">已发布</option>
+										<option value="2">已暂停</option>
+                                	</select>
+				</div>
+			</div>
+
+
+			<div class="form-actions">
+				<div class="row" align="center">
+					<div class="col-md-12">
+					    <button class="btn btn-primary" onclick="location.href='t_navigation.html'">返回</button>
+						<button class="btn btn-primary" type="submit" onclick="add(this, true)">
+							<i class="fa fa-save"></i> 保存
+						</button>
+					</div>
+				</div>
+			</div>
+
+		</fieldset>
+	</div>
+
+	<script src="../../js/constant.js"></script>
+	<script type="text/javascript" src="../../js/libs/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="../../js/jq.js"></script>
+	<script type="text/javascript" src="../../layui/layui.js"></script>
+	<script type="text/javascript" src="../../js/common.js"></script>
+	<script type="text/javascript">
+	var layedit, index;
+	
+	    //json便利
+		//$(function(){
+                 //$.ajax({
+                    // type: "GET", //请求的方式，也有get请求
+                    // url: domainName + '/api-f/files/templates?start=0&length=20', 
+                    // dataType: "json", //json格式，后台返回的数据为json格式的。
+                    // success: function(result){
+                       // var dataObj = result.data; //返回的result为json格式的数据
+                        // con = "<select id='tempId'  class='input-sm'>";
+                        // $.each(dataObj, function(index, item){
+                             //con += "<option value="+item.id+">"+item.name+"</option>";
+							// });
+							// con+="</select>";
+                         //$("#datat").html(con); //把内容入到这个div中即完成
+                    //}    
+                // })
+       //  })
+	    var layer;
+		layui.use('layer', function(){
+             layer = layui.layer;
+         }); 
+	
+		function add(obj, send) {
+			var sort = $("#sort").val();
+			var linkUrl = $("#linkUrl").val();
+		    var name = $("#name").val();
+			var status=$("#status option:selected").val();
+		    if(sort.trim() == ""){
+		       layer.msg("排序不能为空")
+			   return;
+		    }
+		      if(name.trim() == ""){
+		       layer.msg("导航栏名称不能为空")
+			   return;
+		    }
+		    $(obj).attr("disabled",true);
+		    
+		    var formdata = $("#form").serializeObject();
+		    formdata.sort = sort;
+		    formdata.linkUrl = linkUrl;
+			formdata.name = name;
+		    formdata.status = status;
+			$.ajax({
+				type : 'post',
+				url : domainName + '/api-f/files/saveNavigation?send='+send+"&access_token="+localStorage.getItem("access_token"),
+				contentType: "application/json; charset=utf-8",  
+				data : JSON.stringify(formdata),
+				success : function(data) {
+				    var msg = "成功";
+				    if(send) {
+				        msg = "异步上传中，请在列表中查看结果";
+					}
+					layer.msg(msg, {shift: -1, time: 1000}, function(){
+						location.href = "t_navigation.html";
+                    });
+				}
+			});
+            $(obj).attr("disabled",false);
+		}
+		
+	</script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../layui/css/layui.css">
+</head>
+<body>
+    <input type="hidden" id="id" name="id">
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+		<fieldset>
+			<div class="form-group">
+				<label class="col-md-2 control-label">顺序</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="顺序" type="text" name="sort" id="sort" maxlength="255">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label class="col-md-2 control-label">子首页显示项名</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="服务名称" type="text" name="name" id="name" maxlength="128" >
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">所属业务</label>
+				<div class="col-md-10">
+					<input class="form-control" placeholder="服务名称" type="text" name="parentid" id="parentid" maxlength="128"  disabled="true" >
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-md-2 control-label">状态</label>
+				<div class="col-md-10">
+					               <select class="input-sm" id="isEnable">
+                                		<option value="0">禁用</option>
+                                		<option value="1">启用</option>
+                                	</select>
+				</div>
+			</div>
+
+			<div class="form-actions">
+				<div class="row" align="center">
+					<div class="col-md-12">
+					    <button class="btn btn-primary" onclick="retunList()">返回</button>
+						<button class="btn btn-primary" type="submit" onclick="add(this, true)">
+							<i class="fa fa-save"></i> 保存
+						</button>
+					</div>
+				</div>
+			</div>
+
+		</fieldset>
+	</div>
+
+	<script src="../../js/constant.js"></script>
+	<script type="text/javascript" src="../../js/libs/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="../../js/jq.js"></script>
+	<script type="text/javascript" src="../../layui/layui.js"></script>
+	<script type="text/javascript" src="../../js/common.js"></script>
+	<script type="text/javascript">
+	
+	 function retunList(){
+		var parentId = getUrlParam("parentid");
+		var parentname = getQueryString("parentname");
+	 location.href = "PageDisplayItem_children_list.html?id=" +parentId+"&name="+parentname;
+	 }
+	
+	
+	
+	
+	   var layedit, index;
+		layui.use(['layedit','upload'], function(){
+		  layedit = layui.layedit;
+		});
+
+$(function(){
+      initData();
+});
+
+        function initData(){
+            var id = getUrlParam("id");
+		   var parentname = getQueryString("parentname");
+            if(id != ""){
+                $.ajax({
+                    type : 'get',
+                    url : domainName + '/api-b/pageDisplay/PageDisplayItemServerChilderDeatil?id=' +id,
+                    async : false,
+                    success : function(data) {
+                        $("#id").val(data.id);
+                        $("#sort").val(data.sort);
+						$("#name").val(data.name);
+						$("#parentid").val(parentname);
+                        $("#isEnable").find("option[value = '"+data.isEnable+"']").attr("selected","selected");
+                    }
+                });
+            }else{
+				$("#parentid").val(parentname);
+			
+			}
+        }
+		
+		
+		
+		function add(obj, send) {
+		    var id = getUrlParam("id");
+			var parentId = getUrlParam("parentid");
+			var parentname = getQueryString("parentname");
+			var url="";
+			var sort = $("#sort").val();
+            var name=$("#name").val();
+			var isEnable=$("#isEnable option:selected").val();
+		    var formdata = $("#form").serializeObject();
+			 if(id!=""){
+			   url=domainName + '/api-b/pageDisplay/updatePageDisplayItemServerChildren?send=' + send;
+			 formdata.sort = sort;
+		     //formdata.linkUrl = linkUrl;
+			 formdata.name = name;
+		     formdata.isEnable = isEnable;
+			 formdata.id = id;
+			 }else{
+			    url=domainName + '/api-b/pageDisplay/savePageDisplayItemServerChildren?send=' + send;
+			   formdata.sort = sort;
+		       //formdata.linkUrl = linkUrl;
+			   formdata.name = name;
+		       formdata.isEnable = isEnable;
+			   formdata.parentId = parseInt(parentId);
+			 }
+			$.ajax({
+				type : 'post',
+				url : url,
+				contentType: "application/json; charset=utf-8",  
+				data : JSON.stringify(formdata),
+				success : function(data) {
+				    var msg = "成功";
+				    if(send) {
+				        msg = "异步保存中，请在列表中查看结果";
+					}
+					layer.msg(msg, {shift: -1, time: 1000}, function(){
+						location.href = "PageDisplayItem_children_list.html?id=" +parentId+"&name="+parentname;
+                    });
+				}
+			});
+            $(obj).attr("disabled",false);
+		}
+		
+	</script>
+</body>
+</html>

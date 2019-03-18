@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/dataTables.bootstrap.min.css">
+<link rel="stylesheet" href="../../layui/css/layui.css" media="all" />
+
+</head>
+<body>
+    <div>
+	 <input type="hidden" id="ids" />
+	  <input type="hidden" id="remoteType" />
+	   <input type="hidden" id="fileanme" />
+	  
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div>
+                <header style="height: 100%">
+					 <div align="left">
+                        <table style="width: 100%">
+                            <tr>
+                                <td>
+                                	<form class="form-inline" onsubmit="return false">
+										<div class="form-group">
+										   <button class="btn btn-primary" onclick="location.href='t_yaogan_type.html'">返回上一级</button>
+										    订单所属遥感类型：
+											<input type="text" class="form-control"  id="orderName" >
+											状态：
+                                            <select class="form-control input-sm" id="status">
+                                                <option value="0">全部</option>
+                                                <option value="1">未承接</option>
+                                                <option value="2">已承接</option>
+                                                <option value="3">已完成</option>
+                                            </select>
+											作物：
+                                            <select class="form-control input-sm" id="cropType">
+                                                <option value="">全部</option>
+                                                <option value="稻">水稻</option>
+                                                <option value="玉">玉米</option>
+                                                <option value="麦">小麦</option>
+                                            </select>
+											位置：
+											<input type="text" class="form-control" placeholder="输入位置" id="area_area_name">
+											地名：
+											<input type="text" class="form-control" placeholder="地名" id="area_name">
+											用户：
+											<input type="text" class="form-control" placeholder="用户" id="user_realname">
+											VIP订单：
+                                            <select class="form-control input-sm" id="vip">
+                                                <option value="">全部</option>
+                                                <option value="gov">政府</option>
+                                            </select>
+										</div>
+                                        <button id="searchBt" class="layui-btn layui-btn-sm" ><i class="layui-icon">&#xe615;</i>搜索</button>
+									</form>
+                                </td> 
+                            </tr> 
+                        </table>
+                    </div>
+                </header>
+                
+                <div>
+                    <div class="widget-body no-padding">
+                        <table id="dt-table" class="table table-striped table-bordered table-hover" style="width:100%">
+                            <thead>
+                                <tr>
+                                </tr>                       
+                                <tr>
+                             <th>订单ID</th>
+							<th>订单日期</th>
+							<th>订单编号</th>
+							<th>田地信息</th>
+							<th>用户信息</th>
+							<th>地名</th>
+							<th>VIP订单</th>
+							<th>工单状态</th>
+                               </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+  <!--       地块详细信息      -->
+  <div  id="myModal" style="display:none">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div>
+                <header style="height: 100%">
+					 <div align="left">
+                        <table style="width: 100%">
+                            <tr>
+                                <td>
+                                	<form class="form-inline" onsubmit="return false">
+										<div class="form-group">
+										</div>
+									</form>
+                                </td>
+
+                            </tr> 
+                        </table>
+                    </div>
+                </header>
+                
+                <div>
+                    <div class="widget-body no-padding">
+                        <table id="dts-table" class="table table-striped table-bordered table-hover" style="width:100%">
+                            <thead>
+                                <tr>
+                                </tr>                       
+                                <tr>
+                          	<th>订单编号</th>
+							<th>田地信息</th>
+							<th>田地位置</th>
+							<th>播种时间</th>
+							<th>播种作物名</th>
+							<th>作物类型</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+	
+	
+	
+	<!--                获得订单概要                                   -->
+	
+	
+	  <div  id="orderSummary" style="display:none">
+       
+		   	<table class="table table-striped table-bordered table-hover" >
+								<thead>
+									<tr>
+									<th colspan="4"style="text-align:center;font-weight:bold;color:#00F" >订单概要</th>
+									</tr>
+								</thead>
+								<tbody >
+								<tr>
+								<th id="orderNo"> 订单编号:</th> <th> 订单类型:遥感服务</th>
+								</tr>
+								<tr>
+								<th id="orderDateStr"> 创建时间:</th> <th id="paymentDateStr"> 支付时间:</th>
+								</tr>
+								<tr>
+								<th id="amount"> 订单金额:</th> <th id="paymentType"> 支付方式:</th>
+								</tr>
+								<tr>
+								<th id="userRealname"> 用户信息:</th> <th id="orderState"> 订单状态:</th>
+								</tr>
+								<tr>
+								<th id="statusName"> 工单状态:</th>
+								</tr>
+								</tbody>
+			</table>
+			
+			
+			
+			 <table class="table table-striped table-bordered table-hover">
+								<thead>
+									<tr>
+										<th colspan="4"style="text-align:center;font-weight:bold;color:#00F">工单处理</th>
+									</tr>
+								</thead>
+								<tbody >
+								<tr>
+								<th id="orderType"> 工单分类:</th> <th id="area"> 覆盖面积:</th>
+								</tr>
+								<tr>
+								<th id="enginerName"> 工程师:</th> <th id="recieveTime"> 接单时间:</th>
+								</tr>
+							</tbody>
+			</table>
+			
+			
+			
+			
+			
+			 <table class="table table-striped table-bordered table-hover">
+								<thead>
+									<tr>
+										<th colspan="5"style="text-align:center;font-weight:bold;color:#00F">地块列表</th>
+									</tr>
+								</thead>
+								
+								<tbody  id="areaDeatil" >
+							      <tr>        
+								  <th>地块</th> <th>类型</th><th>影像</th> <th>结果</th><th>图像</th>
+                                 </tr>
+								</tbody>
+								
+			</table>
+			
+			 
+			 <table class="table table-striped table-bordered table-hover" id="recieveOrder">
+								
+			 </table>
+			 
+			 
+			 <table class="table table-striped table-bordered table-hover" id="finishOrder">
+			 
+			 
+			 
+								
+			 </table>
+			 
+			 
+			 
+			
+			 
+			
+     </div>
+	
+<script src="../../js/constant.js"></script>
+<script type="text/javascript" src="../../js/libs/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../js/jq.js"></script>
+<script type="text/javascript" src="../../js/common.js"></script>
+<script type="text/javascript" src="../../layui/layui.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="../../js/my/permission.js"></script>
+
+
+<script type="text/javascript">
+
+
+  var example;
+  var examples;
+  var exampless;
+  var layer;
+layui.use(['layer','util', 'laydate'], function(){
+    layer = layui.layer;
+    var util = layui.util;
+    var laydate = layui.laydate; 
+    function init(){
+	     var orderType = getUrlParam("orderType");
+		 $('#remoteType').val(orderType);
+		 $('#orderName').val(getQueryString("orderName"));
+		 $('#orderName').attr('disabled',"true");
+    	example = 
+        	$('#dt-table').DataTable({
+            	"searching": false,
+            	"processing": false,
+            	"serverSide" : true,
+            	"ordering" :false,
+            	"language": {
+                    "url": "../../js/plugin/datatables/Chinese.lang"
+                },
+            	"ajax": {
+            		"url" : domainName + "/api-remote/remote/workorderFindWorkOrderAllByPage",
+            		"type":"get",
+            		"data":function(d){
+        				d.status = $("#status option:selected").val()
+        				d.cropType = $("#cropType option:selected").val();
+						d.orderType=orderType;
+						//d.positionVarietyUser=$("#positionVarietyUser").val();
+						d.areaAreaName=$("#area_area_name").val();
+						d.areaName=$("#area_name").val();
+						d.userRealname=$("#user_realname").val();
+						d.vip=$("#vip").val();
+            		},
+            		"dataSrc": function (json) {
+            			json.recordsTotal=json.total;
+            			json.recordsFiltered=json.total;
+            			return json.data;
+            		},
+        			"error":function(xhr, textStatus, errorThrown){
+        				var msg = xhr.responseText;
+        				console.log(msg);
+        				if (xhr.status == 400) {
+        					layer.msg(JSON.parse(msg).message);
+        				} else if (xhr.status == 401) {
+        					localStorage.removeItem("token");
+        					layer.msg("token过期，请重新登录", {shift: -1, time: 1000}, function(){
+                                location.href = loginPage;
+                            });
+        				} else if (xhr.status == 403) {
+        					layer.msg('未授权');
+        				} else if (xhr.status == 500) {
+        					var info = JSON.parse(msg);
+        					var exception = info.exception;
+        					var message = info.message;
+        					layer.msg('系统错误：' + (exception ? exception : message));
+        				}
+        			}
+            	},
+            	"dom": "<'dt-toolbar'r>t<'dt-toolbar-footer'<'col-sm-10 col-xs-12 hidden-xs'i><'col-xs-12 col-sm-10' p v>>",	
+                "columns": [
+				     { "data": "orderId", "defaultContent": ""},
+					 { 
+                    	"data": "orderDate",
+                    	"defaultContent": "",
+                    	"render": function (data, type, row) {
+                    		return util.toDateString(data);
+                    	}
+                    },
+					 { "data": "orderNo", "defaultContent": ""},
+					 { "data": "fieldInfo", 
+					   "defaultContent": "",
+					    "render": function (data, type, row) {
+						   var list = row['tOrderDetailList'];
+						   var orderId=row['orderId']
+						   if(list!=null){
+						     return isNull(data)+"&nbsp;&nbsp;<a href='javascript:void(0);' onclick='getFiledDeatil("+orderId+")' style='color:red;'><b>更多</b></a>";
+						   }else{
+						     return isNull(data);
+						   }
+                    	}
+					 },
+                	 { "data": "userInfo", "defaultContent": ""},
+					            
+					 { "data": "areaName", "defaultContent": ""},
+                	 { "data": "vip", 
+                       "defaultContent": "",
+                        "render": function (data, type, row) {
+                    		if(data=='VIP'){//
+
+                              return "VIP订单";
+                    		}
+                    		return "普通订单";
+                    	}
+                      },
+					 {  "data": "statusName", 
+					    "defaultContent": "",
+					   "render": function (data, type, row) {
+					       var orderId=row['orderId'];
+					      return "<a href='javascript:void(0);' onclick='getOrderDeatil("+orderId+")' style='color:red;'><b>"+data+"</b></a>";
+					   }
+					 },
+                ],
+            } );
+    }
+	
+	function inits2(){
+       examples = $('#dts-table').DataTable({
+            	"searching": false,
+            	"processing": false,
+            	"serverSide" : true,
+            	"ordering" :false,
+            	"language": {
+                    "url": "../../js/plugin/datatables/Chinese.lang"
+                },
+            	"ajax": {
+            		"url" : domainName + "/api-remote/remote/queryOrderDetailByOrderId",
+            		"type":"get",
+					"data":function(d){
+        				d.orderId = $("#ids").val();
+						if( $("#ids").val()==""){
+						 examples.ajax().abort();
+						}
+            	    },
+            		"dataSrc": function (json) {
+            			json.recordsTotal=json.total;
+            			json.recordsFiltered=json.total;
+            			return json.data;
+            		},
+        			"error":function(xhr, textStatus, errorThrown){
+        				var msg = xhr.responseText;
+        				console.log(msg);
+        				if (xhr.status == 400) {
+        					layer.msg(JSON.parse(msg).message);
+        				} else if (xhr.status == 401) {
+        					localStorage.removeItem("token");
+        					layer.msg("token过期，请重新登录", {shift: -1, time: 1000}, function(){
+                                location.href = loginPage;
+                            });
+        				} else if (xhr.status == 403) {
+        					layer.msg('未授权');
+        				} else if (xhr.status == 500) {
+        					var info = JSON.parse(msg);
+        					var exception = info.exception;
+        					var message = info.message;
+        					layer.msg('系统错误：' + (exception ? exception : message));
+        				}
+        			}
+            	},
+            	"dom": "<'dt-toolbar'r>t<'dt-toolbar-footer'<'col-sm-10 col-xs-12 hidden-xs'i><'col-xs-12 col-sm-10' p v>>",	
+                "columns": [
+				    { "data": "orderNo", "defaultContent": ""},
+					{ "data": "areaName", "defaultContent": ""},
+					{ "data": "areaAreaName", "defaultContent": ""},
+					{ "data": "startDateStr", "defaultContent": ""},
+					{ "data": "cropNameStr", "defaultContent": ""},
+			        { "data": "cropType", "defaultContent": "-"},
+                ],
+            } );
+      }
+	  
+      init();
+	  inits2();
+
+	
+});
+
+
+$("#searchBt").click(function(){
+	example.ajax.reload();
+});
+
+
+function getOrderDeatil(id){
+  $.ajax({
+             type: "GET",
+             url: domainName+"/api-remote/remote/queryOrderDetail?orderId="+id,
+             dataType: "json",
+             success: function(data){
+			         if(data.code==200){//请求成功
+					   $("#orderNo").text("订单编号："+isNull(data.data.order.orderNo));
+					   $("#orderDateStr").text("创建时间："+isNull(data.data.order.orderDateStr));
+					   $("#paymentDateStr").text("支付时间："+isNull(data.data.order.paymentDateStr));
+					   $("#amount").text("订单金额："+data.data.order.amount);
+					   $("#paymentTypeName").text("支付方式："+isNull(data.data.order.paymentTypeName));
+					    $("#userRealname").text("用户信息："+isNull(data.data.order.userRealname));
+					   $("#statusName").text("工单状态："+isNull(data.data.order.statusName));
+					   if(data.data.order.orderState==10){
+					      $("#orderState").text("订单状态：已完成");
+					   }else if(data.data.order.orderState==0){
+					      $("#orderState").text("订单状态：未支付");
+					   }else{
+					    $("#orderState").text("订单状态：已支付");
+					    }
+						//判断是否显示接单 已经支付和未承接的时候才显示接单按钮，没付款接毛线。万一遥感部门的人傻呢。防止误操作
+						
+						if(data.data.order.orderState==5&&data.data.order.statusName=='未承接'){
+						  $("#recieveOrder").empty();
+						  $("#finishOrder").empty();
+						  $("#recieveOrder").html("<thead><tr><th colspan='4'style='text-align:center;font-weight:bold;color:#00F'><input type='button'  value='承接订单'  onclick='recieveOrder("+id+")'></th></tr></thead>");
+											
+						}
+						
+						if(data.data.order.statusName=="已承接"){
+						     $("#recieveOrder").empty();
+						 	$("#finishOrder").html("<thead><tr><th colspan='4'style='text-align:center;font-weight:bold;color:#00F'><input type='button'  value='完成订单'  onclick='finishOrder("+id+")'></th><th colspan='4'style='text-align:center;font-weight:bold;color:#00F'><input type='button'  value='编写报告'  onclick='editReport("+id+",1)'></th></tr></thead>");
+						}
+						
+					 if(data.data.order.statusName=="已完成"){
+						     $("#finishOrder").empty();
+							  $("#recieveOrder").empty();
+						 	$("#finishOrder").html("<thead><tr><th colspan='4'style='text-align:center;font-weight:bold;color:#00F'><input type='button'  value='查看报告'  onclick='editReport("+id+",2)'></th></tr></thead>");
+						}
+						
+						
+				
+						$("#orderType").text("工单类型："+$("#orderName").val());
+					    $("#area").text("覆盖面积："+isNull(data.data.order.areaCount)+"块地"+isNull(data.data.order.area)+"亩");
+						        var fildList="";
+								var obj=data.data.details;
+								var fileanme="";
+						  for (i=0;i<obj.length;i++){
+						          var booleanShowLink="";
+					             if(isNull(obj[i].rsDateStr)=='暂无'){//增加上传影像标签
+								   booleanShowLink="<td>"+isNull(obj[i].rsDateStr)+"<br/><input  onclick='uploadImage("+i+","+id+","+obj[i].areaId+","+obj[i].id+","+data.data.order.workId+",\""+obj[i].wrsTypeName+"\","+obj[i].wrsType+")' style='background:#02bafa' type='button'  value='上传'/></td>";
+                                 }else{//显示影像日期和分辨率大小
+								   booleanShowLink="<td>日期："+isNull(obj[i].rsDateStr)+"<br/>分辨率:"+isNull(obj[i].pixelSize)+"<br/><input  onclick='uploadImage("+i+","+id+","+obj[i].areaId+","+obj[i].id+","+data.data.order.workId+",\""+obj[i].wrsTypeName+"\","+obj[i].wrsType+")' style='background:#02bafa' type='button'  value='上传'/><input type='button' value='添加建议' onclick='uploadAdvice("+i+","+obj[i].remoteId+","+obj[i].areaId+","+obj[i].id+","+data.data.order.workId+",\""+obj[i].wrsTypeName+"\","+obj[i].wrsType+")' style='background:#02bafa' /></td>";
+                                 }	
+                                  if(isNull(obj[i].imgUrl)=='暂无'){
+								  
+								    fildList+="<tr>"+ 
+								  "<td>"+isNull(obj[i].areaName)+"--"+isNull(obj[i].cropName)+"--"+isNull(obj[i].startDateStr)+"</td>"+
+								      "<td>"+isNull(obj[i].wrsTypeName)+"</td>"+
+			                            booleanShowLink +
+                                    "<td>"+isNull(obj[i].avgValue)+"</td>" +
+									"<td>暂无</td>" 
+                                    }else{
+                                       fildList+="<tr>"+ 
+								  "<td>"+isNull(obj[i].areaName)+"--"+isNull(obj[i].cropName)+"--"+isNull(obj[i].startDateStr)+"</td>"+
+								      "<td>"+isNull(obj[i].wrsTypeName)+"</td>"+
+			                            booleanShowLink +
+                                    "<td>"+isNull(obj[i].avgValue)+"</td>" +
+									"<td><a  href='javascript:void(0);' onclick='updateUpload("+i+","+obj[i].wrsType+",\""+obj[i].wrsTypeName+"\","+obj[i].remoteId+","+obj[i].id+","+data.data.order.workId+","+id+")'><img src="+isNull(obj[i].imgUrl)+" width='42' height='42'></a></td>" 
+
+                                     }									
+						          fileanme+=isNull(obj[i].areaName)+"--"+isNull(obj[i].cropName)+"--"+isNull(obj[i].startDateStr)+"@";
+                                
+					        }
+						   $("#fileanme").val(fileanme);
+						   var title="<tr><th>地块</th><th>类型</th> <th>影像</th> <th>结果</th><th>图像</th></tr>";
+						  $("#areaDeatil").html(title+fildList);
+						  $("#enginerName").text("工程师："+isNull(data.data.order.userName));
+						  $("#recieveTime").text("接单时间："+isNull(data.data.order.singleTimeStr));
+                      } 	
+		}		  
+         });
+  layer.open({
+    type: 1,
+    title: '订单概要',
+    maxmin: true,
+    shadeClose: true, //点击遮罩关闭层
+    area: ['800px', ''],
+    content: $('#orderSummary'),
+  });
+
+}
+
+
+
+//上传影像
+function uploadImage(num,id,areaId,detailId,workId,wrsTypeName,wrsType){
+var ss=$("#fileanme").val().split("@");
+layer.open({
+    type: 2,
+    title: '上传图片>>>>>>'+ss[num],
+    maxmin: true,
+    shadeClose: true, //点击遮罩关闭层
+    area: ['1000px', '700px'],
+    content:['/pages/yaogan/t_upload.html?id='+id+"&areaId="+areaId+"&detailId="+detailId+"&workId="+workId+"&wrsTypeName="+wrsTypeName+"&wrsType="+wrsType, 'yes'], 
+  });
+}
+
+
+ function uploadAdvice(num,id,areaId,detailId,workId,wrsTypeName,wrsType){
+   var ss=$("#fileanme").val().split("@");
+   layer.open({
+    type: 2,
+    title: '上传建议>>>>>>'+ss[num],
+    maxmin: true,
+    shadeClose: true, //点击遮罩关闭层
+    area: ['1000px', '700px'],
+    content:['/pages/yaogan/t_advice.html?id='+id+"&areaId="+areaId+"&detailId="+detailId+"&workId="+workId+"&wrsTypeName="+wrsTypeName+"&wrsType="+wrsType, 'yes'], 
+  });
+}
+
+
+
+
+
+
+
+
+/**
+
+
+修改或者编辑报告
+**/
+
+
+function editReport(id,number){
+
+  layer.open({
+    type: 2,
+    title: '编辑报告',
+    maxmin: true,
+    shadeClose: true, //点击遮罩关闭层
+    area: ['1000px', '700px'],
+    content:['/pages/yaogan/t_edit.html?id='+id+"&number="+number, 'yes'], 
+  });
+
+
+}
+
+
+
+
+
+
+
+//修改上传影像
+function updateUpload(num,wrsType,wrsTypeName,remoteId,detailId,workId,orderId){
+var ss=$("#fileanme").val().split("@");
+layer.open({
+    type: 2,
+    title: '修改上传图片>>>>>>'+ss[num],
+    maxmin: true,
+    shadeClose: false, //点击遮罩关闭层
+    area: ['1000px', '700px'],
+    content:['/pages/yaogan/t_update_upload.html?wrsType='+wrsType+"&wrsTypeName="+wrsTypeName+"&remoteId="+remoteId+"&detailId="+detailId+"&workId="+workId+"&id="+orderId, 'yes'], 
+	cancel: function(index, layero){ 
+    if(confirm('确定要关闭么')){ //只有当点击confirm框的确定时，该层才会关闭
+        layer.close(index);
+     }
+     return false; 
+     }    
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//接单
+function recieveOrder(id){
+   var status=2;
+   var orderId =id; 
+    $.ajax({
+	         type: "POST",
+             url: domainName+"/api-remote/remote/workorderUpdateWorkOrderStatus",
+			 data:{           
+             status : status,      
+             orderId : orderId        
+             }, 
+             dataType: "json",
+	          success:function(data) {      
+            if(data.code ==200 ){ 
+             layer.msg('操作成功!', {icon: 6, time: 1000}); 
+			 layer.close(layer.index);
+             location.reload();
+            }else{   
+			  layer.msg('操作失败!', {icon: 5, time: 1000});
+            }      
+         }
+	
+	});
+   
+}
+
+//完成订单
+
+function finishOrder(id){
+
+   var status=3;
+   var orderId =id; 
+    $.ajax({
+	         type: "POST",
+             url: domainName+"/api-remote/remote/workorderUpdateWorkOrderStatus",
+			 data:{           
+             status : status,      
+             orderId : orderId        
+             }, 
+             dataType: "json",
+	          success:function(data) {      
+            if(data.code ==200 ){ 
+             layer.msg('操作成功!', {icon: 6, time: 1000}); 
+			 layer.close(layer.index);
+             location.reload();
+            }else{   
+			  layer.msg('操作失败!', {icon: 5, time: 1000});
+            }      
+         }
+	
+	});
+
+
+
+}
+
+
+
+
+
+   
+
+function getFiledDeatil(imgKey){
+$('#ids').val(imgKey);
+examples.ajax.reload();
+layer.open({
+    type: 1,
+    title: '获得地块详细',
+    maxmin: true,
+    shadeClose: true, //点击遮罩关闭层
+    area: ['800px', ''],
+    content: $('#myModal'),
+  });
+     
+}
+
+</script>
+</html>

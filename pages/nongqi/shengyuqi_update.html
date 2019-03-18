@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" media="screen" href="../../layui/css/layui.css">
+<link href="../../css/city-picker.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+ input[type="checkbox"]{
+ width:20px;height:20px;
+}
+
+
+</style>
+	
+	
+<body>	
+
+       <input  type="hidden"  id="id"/>
+	
+	<!-- 模板生育期 -->
+	<div id="templateC" >
+		<hr style="height:3px;border:none;border-top:1px double red;"/>
+		<form class="form-horizontal" id="saf">
+			<div class="row" name="one">
+				<div class="col-sm-4">
+					<div class="form-group">
+						<label for="" class="col-sm-4 control-label">区/县:</label>
+						<div class="col-sm-8">
+							<input type="text" id="area_name" disabled="disabled">
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-4">
+					<div class="form-group">
+						<label for="description" class="col-sm-4 control-label">品种名称:</label>
+						<div class="col-sm-8">
+							<input type="text" id="crop_name" disabled="disabled">
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-horizontal">
+			<div class="temp-growth">
+				<div class="row">
+					<div class="col-sm-4">
+						<div class="form-group">
+						    <label for="" class="col-sm-4 control-label">生育期名称:</label>
+						    <div class="col-sm-8">
+						      <input type="text" class="form-control" id="periodName" disabled="disabled">
+						    </div>
+					    </div>
+					</div>
+					<div class="col-sm-4">
+					  <div class="form-group">
+					    <label for="description" class="col-sm-4 control-label">周期天数:</label>
+					    <div class="col-sm-8">
+					      <input type="test" class="form-control" id="dayCount">
+					    </div>
+					  </div>
+					 </div>
+					 <div class="col-sm-4">
+					 	<div class="form-group">
+						    <label for="description" class="col-sm-4 control-label">排序:</label>
+						    <div class="col-sm-8">
+						      <input type="text" class="form-control" id="sort">
+						    </div>
+					    </div>
+					 </div>
+
+                    <div class="col-sm-8">
+				  <div class="form-group">
+				    <label for="description" class="col-sm-2 control-label">指导信息:</label>
+				    <div class="col-sm-8">
+				      <textarea class="form-control" name="guideInfo" id="guideInfo" rows="2"></textarea>
+				    </div>
+				  </div>
+				 </div>
+				</div>
+			
+				<div class="row">
+					<div class="col-sm-12">
+					 	<div class="form-group">
+						   <label for="description" class="col-sm-1 control-label" style="width: 11%">病虫害:</label>
+						    <div class="col-sm-8" id="diseaseId" name="disease">
+						    	
+						    </div>
+					    </div>
+					 </div>
+				</div>
+			</div>
+			</div>
+			<div class="index-set">
+			  		<div class="row title">
+			  			<div class="col-sm-12">
+			  				<h3 class="pull-left">指标设置</h3>
+			  				<a id="add" class="btn btn-primary pull-right" href="javascript:;"><i class="fa fa-plus"></i>添加指标</a>
+			  				<div id="rp"></div>
+			  			</div>
+			  		</div>
+			  		<div id="elementV" class="row"></div>
+			  	</div>
+		</form>
+		
+			<div class="form-actions">
+				<div class="row" align="center">
+					<div class="col-md-12">
+					  
+						<button class="btn btn-primary" type="submit" onclick="saveSQ(this, true)">
+							<i class="fa fa-save"></i> 保存
+						</button>
+					</div>
+				</div>
+			</div>
+	</div>
+	
+	
+	<!-- 模板指标 -->
+	<!-- 模板指标 -->
+	<div class="row" id="elementC" style="display: none;">
+	  <div class="row">
+	  	<div class="col-sm-4">
+	  		<div class="form-group">
+	  		    <label for="" class="col-sm-4 control-label">指标:</label>
+	  		    <div class="col-sm-8">
+	  		      <select class="form-control" name="elementId">
+	  		      </select>
+	  		      <label for="" class="col-sm-4 control-label">值:</label>
+	  		      <input type="number" class="form-control" name="minVal" lay-verify="required">
+	  		      <input type="hidden" class="form-control" name="quotaId" lay-verify="required">
+	  		    </div>
+	  	    </div>
+	  	</div>
+	  	<a href="javascript:;" class="del-index" onclick="deleteParent(this);">删除</a>
+	  	<div id="rp"></div>
+	  </div>
+	</div>
+</body>
+<script src="../../js/constant.js"></script>
+<script type="text/javascript" src="../../js/libs/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../js/jq.js"></script>
+<script type="text/javascript" src="../../layui/layui.js"></script>
+<script type="text/javascript" src="../../js/common.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="../../js/my/permission.js"></script>
+
+
+
+
+
+<script type="text/javascript" >
+
+
+      var area_name=getQueryString("area_name");
+	  var crop_name=getQueryString("crop_name");
+	  var periodName=getQueryString("periodName");
+	  var dayCount=getQueryString("daycount");
+	  var guideInfo=getQueryString("guideInfo");
+	  var sort=getQueryString("sort");
+	    var addElement = $('#elementV');
+		var addTemplate =$('#add');
+		var debtn = "";
+		var elementSize = 1;//指标个数，删除时使用
+            //初始化加载
+        var periodId = getUrlParam("periodId");
+     function initData(){
+     	   // alert("点击显示病虫害指标");
+            if(periodId != ""){
+                $.ajax({
+                    type : 'get',
+                    url : domainName + '/api-ag/growth/getQuotasAndDiseasesByPeriodId?periodId='+periodId,
+                    success : function(data) {
+                        $("#id").val(data.data.id);
+					    $("#area_name").val(area_name);
+					    $("#crop_name").val(crop_name);
+					    $("#periodName").val(periodName);
+					    $("#dayCount").val(dayCount);
+					    $("#guideInfo").val(guideInfo);
+					    $("#sort").val(sort);
+					    var periodDiseaseList=data.data.periodDiseaseList;
+					    //选中指标
+					    var quotas=data.data.quotas;
+					    for(var i=0,len=quotas.length;i<len;i++){//所有的下拉框拿出来 选中指标数*12
+			              addElement.append($('#elementC').html());
+			              debtn = addElement.find('.del-index');
+			              elementSize = debtn.length;
+			              //按照生成顺序进行选定
+			              var obj=$('#elementV').find("option[value = '"+quotas[i].elementId+"']");
+			               for(var s=0;s<obj.length;s++){
+                                $(obj[i]).attr("selected","selected");
+                                $(obj[i]).parent().next().next().val(quotas[i].minVal);
+                                $(obj[i]).parent().next().next().next().val(quotas[i].id);
+			               }            
+					    }
+					       //选中病虫害
+					    for(var s in periodDiseaseList){
+					        
+					       $("input[type='checkbox'][value="+periodDiseaseList[s].diseaseId+"]").prop('checked',true);
+
+					    }
+
+                    }
+                });
+                  
+            }
+        }
+
+ var layer;
+
+layui.use(['layer','util', 'laydate'], function(){
+       layer= layui.layer;
+       
+	});
+
+
+
+
+
+
+	
+	  var addElement = $('#elementV');
+		   var addTemplate =$('#add');
+		    addTemplate.click(function(){//添加操作
+			addElement.append($('#elementC').html());
+			var debtn = addElement.find('.del-index');
+			elementSize = debtn.length;
+
+       })
+	
+	
+	    //病虫害数据
+	$.get(domainName+'/api-ag/disease/queryDiseaseAllInfos',function(response){
+		var select = $('[name="disease"]');//病虫害select
+		var option = '';
+		diseaseData = response.data
+		$.each(response.data,function(i,obj){
+			if ((i+1)%5 == 0) {
+				option += '<br/><input type="checkbox" name="diseaseIds"  style="width:20px;height:20px;" value="'+obj.id+'"/>'+obj.name+"&nbsp; &nbsp;";
+			}else {
+				option += '<input type="checkbox" name="diseaseIds"   style="width:20px;height:20px;" value="'+obj.id+'"/>'+obj.name+"&nbsp; &nbsp;"	;
+			}
+		});
+		select.html(option);
+		setTimeout(initData(),2000);
+		//window.location.reload();
+	})
+//指标
+	$.get(domainName+'/api-ag/quota/grow',function(response){
+		var option = "";
+		$.each(response.data,function(i,obj){
+			option += '<option value="'+obj.id+'">'+obj.name+'</option>';
+		})
+		$('[name="elementId"]').html(option);
+	})
+	
+	
+	
+	
+	
+	
+	
+//删除指标公用方法
+	function deleteParent(obj){
+		if(elementSize <= 1){
+			layer.msg('请至少保留一个指标');
+		}else{
+			--elementSize;//减少指标个数
+			$(obj).parent('div').remove();
+		}
+
+   }
+   
+//保存生育期 
+function  saveSQ(obj){
+
+
+           var checkedDiseaId = $("input:checkbox[name=diseaseIds]:checked");
+		      var diseaseArray=new Array();//病虫害
+			  var PeriodNameArray=new Array();//指标名称
+			  var PeriodValueArray=new Array();//指标值
+			  var QuotaValueArray=new Array();//指标id
+		   for (i=0;i<checkedDiseaId.length;i++){//拿到所有的病虫害
+		       diseaseArray.push($(checkedDiseaId[i]).val());
+		    }
+		   
+           var checkPeriodName=$("select[name='elementId'] option:selected");
+		   for(i=0;i<checkPeriodName.length-1;i++){//干掉默认不显示的
+		      PeriodNameArray.push($(checkPeriodName[i]).val());
+		   }
+		   
+		   
+           var checkPeriodValue=$("input[name='minVal']");
+		    for(i=0;i<checkPeriodValue.length;i++){
+			  if($(checkPeriodValue[i]).val()!=""){//去除默认的输入框值
+			      PeriodValueArray.push($(checkPeriodValue[i]).val());
+			   }
+		  
+		   }
+
+		    var checkQuotaValue=$("input[name='quotaId']");//指标id
+		    for(i=0;i<checkQuotaValue.length;i++){
+			  if($(checkQuotaValue[i]).val()!=""){//去除默认的输入框值
+			      QuotaValueArray.push($(checkQuotaValue[i]).val());
+			   }
+		  
+		   }
+
+
+                
+     
+
+           $.ajax({
+				type : 'post',
+				url : domainName+"/api-ag/growth/update",
+				dataType: "json",
+                traditional: true,
+				data:{
+				id:periodId,
+				dayCount:$("#dayCount").val(),
+				sort:$("#sort").val(),
+                diseaseIds: diseaseArray,
+                elementId: PeriodNameArray,
+                guideInfo:$("#guideInfo").val(),
+				minVal:PeriodValueArray,
+				quotaId:QuotaValueArray
+
+				},
+				success : function(data) {
+				   if(data.code==200){//成功
+				  layer.alert("保存成功", {
+			          icon: 6,
+			          title: "提示"
+		             });
+
+                    var index = parent.layer.getFrameIndex(window.name);
+	                parent.layer.close(index);
+				   }else{//失败
+				   layer.alert("保存失败", {
+			          icon: 5,
+			          title: "提示"
+		             });
+					 return false;
+				   }
+				}
+            });
+
+};
+
+
+
+
+
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

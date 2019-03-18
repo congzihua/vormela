@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Insert title here</title>
+  <link rel="stylesheet" type="text/css" media="screen" href="../../css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" media="screen" href="../../css/dataTables.bootstrap.min.css">
+  <link rel="stylesheet" href="../../layui/css/layui.css" media="all" />
+</head>
+<body>
+<div>
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div>
+      <header style="height: 100%">
+        <div align="left">
+          <table style="width: 100%">
+            <tr>
+              <td>
+              </td>
+              <td align="right">
+                <button class="layui-btn layui-btn-sm" onclick="location.href='pinzong_saveorupdate.html'" permission="pinzong_c_save">
+                  <i class="layui-icon">&#xe608;</i> 添加专家
+                </button>
+              </td>
+
+            </tr>
+          </table>
+        </div>
+      </header>
+      <div>
+        <div class="widget-body no-padding">
+          <table id="dt-table" class="table table-striped table-bordered table-hover" style="width:100%"></table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+
+
+<script src="../../js/constant.js"></script>
+<script type="text/javascript" src="../../js/libs/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="../../js/jq.js"></script>
+<script type="text/javascript" src="../../layui/layui.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="../../js/plugin/datatables/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="../../js/my/permission.js"></script>
+<script type="text/javascript" src="../../js/common.js"></script>
+<script type="text/javascript">
+
+  var pers = checkPermission();
+
+  var example;
+
+  layui.use(['layer','util', 'laydate'], function(){
+    function init(){
+      example =
+        $('#dt-table').DataTable({
+          "ajax": {
+            "url" : domainName + "/api-ag/expert/expertList",
+            "type":"get",
+            "dataSrc": function (json) {
+              console.log( json);
+              json.recordsTotal=json.total;
+              json.recordsFiltered=json.total;
+              return json.data;
+            },
+          },
+          "columns": [
+            { "data": "", "title": "ID"},
+            { "data": "realname", "title": "姓名"},
+            { "data": "phone", "title": "电话"},
+            { "data": "organName", "title": "单位", "defaultContent": "无"},
+            { "data": "speciality", "title": "专长", "defaultContent": "无"},
+            {
+              "data": "createTime",
+              "title": "启用日期",
+              "defaultContent": "",
+              "render": function (data, type, row) {
+                return $.formatDate('yyyy-MM-dd');
+              }
+            },
+            { "data": "answerCount", "title": "回答"},
+            { "data": "level", "title": "等级"},
+            { "data": "id", "title": "操作"},
+          ],
+        });
+    }
+
+    init();
+  });
+
+  $("#searchBt").click(function(){
+    example.ajax.reload();
+  });
+
+
+</script>
+</html>
